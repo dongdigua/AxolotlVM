@@ -46,6 +46,25 @@ impl VM {
                     let a = self.stack.pop().unwrap();
                     self.stack.push(Value::rem(a, b));
                 }
+                ByteCode::AND => {
+                    let b = self.stack.pop().unwrap();
+                    let a = self.stack.pop().unwrap();
+                    self.stack.push(Value::and(a, b));
+                }
+                ByteCode::OR => {
+                    let b = self.stack.pop().unwrap();
+                    let a = self.stack.pop().unwrap();
+                    self.stack.push(Value::or(a, b));
+                }
+                ByteCode::NOT => {
+                    let a = self.stack.pop().unwrap();
+                    self.stack.push(Value::not(a));
+                }
+                ByteCode::XOR => {
+                    let b = self.stack.pop().unwrap();
+                    let a = self.stack.pop().unwrap();
+                    self.stack.push(Value::xor(a, b));
+                }
                 _ => todo!("what the fuck!"),
             }
         }

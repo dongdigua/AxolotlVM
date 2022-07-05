@@ -12,6 +12,7 @@ fn main() {
         ByteCode::LOAD(Value::Int(2)),
         ByteCode::DIV,
         ByteCode::LOAD(Value::Int(114514)),
+        ByteCode::XOR,
         ByteCode::HALT
     ];
     

@@ -53,11 +53,43 @@ impl Value {
             _ => panic!("unmached or wrong type"),
         }
     }
-    
+
     pub fn rem(a: Value, b: Value) -> Value {
         match (a, b) {
             (Value::Int(value_a), Value::Int(value_b)) => Value::Int(value_a % value_b),
             (Value::Float(value_a), Value::Float(value_b)) => Value::Float(value_a % value_b),
+            _ => panic!("unmached or wrong type"),
+        }
+    }
+
+    pub fn and(a: Value, b: Value) -> Value {
+        match (a, b) {
+            (Value::Int(value_a), Value::Int(value_b)) => Value::Int(value_a & value_b),
+            (Value::Bool(value_a), Value::Bool(value_b)) => Value::Bool(value_a & value_b),
+            _ => panic!("unmached or wrong type"),
+        }
+    }
+
+    pub fn or(a: Value, b: Value) -> Value {
+        match (a, b) {
+            (Value::Int(value_a), Value::Int(value_b)) => Value::Int(value_a | value_b),
+            (Value::Bool(value_a), Value::Bool(value_b)) => Value::Bool(value_a | value_b),
+            _ => panic!("unmached or wrong type"),
+        }
+    }
+
+    pub fn not(a: Value) -> Value {
+        match a {
+            Value::Int(value_a) => Value::Int(!value_a),
+            Value::Bool(value_a) => Value::Bool(!value_a),
+            _ => panic!("unmached or wrong type"),
+        }
+    }
+
+    pub fn xor(a: Value, b: Value) -> Value {
+        match (a, b) {
+            (Value::Int(value_a), Value::Int(value_b)) => Value::Int(value_a ^ value_b),
+            (Value::Bool(value_a), Value::Bool(value_b)) => Value::Bool(value_a ^ value_b),
             _ => panic!("unmached or wrong type"),
         }
     }
