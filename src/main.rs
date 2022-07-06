@@ -2,7 +2,7 @@ mod vm;
 
 use crate::vm::machine::VM;
 use crate::vm::bytecode::ByteCode;
-use crate::vm::value::{self, Value};
+use crate::vm::value::Value;
 
 fn main() {
     let program: Vec<ByteCode> = vec![
@@ -10,9 +10,7 @@ fn main() {
         ByteCode::LOAD(Value::Int(2)),
         ByteCode::ADD,
         ByteCode::LOAD(Value::Int(2)),
-        ByteCode::DIV,
-        ByteCode::LOAD(Value::Int(114514)),
-        ByteCode::XOR,
+        ByteCode::AND,
         ByteCode::HALT
     ];
     
