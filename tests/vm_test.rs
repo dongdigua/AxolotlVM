@@ -1,6 +1,6 @@
 use axolotl::vm::machine::VM;
 use axolotl::vm::bytecode::ByteCode::{
-    LOAD,
+    PUSH,
     ADD,
     SUB,
     MUL,
@@ -17,8 +17,8 @@ use axolotl::vm::value::Value;
 #[test]
 fn test_add_two() {
     let program = vec![
-        LOAD(Value::Int(1)),
-        LOAD(Value::Int(1)),
+        PUSH(Value::Int(1)),
+        PUSH(Value::Int(1)),
         ADD,
         HALT
     ];
@@ -31,8 +31,8 @@ fn test_add_two() {
 #[test]
 fn test_logical() {
     let program = vec![
-        LOAD(Value::Int(5)),
-        LOAD(Value::Int(3)),
+        PUSH(Value::Int(5)),
+        PUSH(Value::Int(3)),
         XOR,
         NOT
     ];

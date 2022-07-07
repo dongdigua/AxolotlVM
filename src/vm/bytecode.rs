@@ -1,9 +1,14 @@
 use crate::vm::value::Value;
 
-#[derive (Debug)]
+#[derive (Debug, PartialEq)]
 pub enum ByteCode {
     HALT,
-    LOAD(Value),
+    PUSH(Value),
+    POP,
+
+    LOAD(usize),
+    SET(usize),
+
     ADD,
     SUB,
     MUL,
