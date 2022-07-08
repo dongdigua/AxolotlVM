@@ -14,7 +14,7 @@ impl Debug for Value {
         match self {
             Value::Int(i) => write!(f, "{}", i),
             Value::Float(i) => write!(f, "{:.5}", i),
-            Value::Char(i) => write!(f, "'{}'", i),
+            Value::Char(i) => write!(f, "'{}'", unsafe { std::char::from_u32_unchecked(*i) }),
             Value::Bool(i) => write!(f, "{}", i),
             Value::Nil => write!(f, "nil"),
         }

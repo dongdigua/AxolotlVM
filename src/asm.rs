@@ -1,11 +1,11 @@
 use crate::vm::bytecode::ByteCode;
 use crate::vm::value::Value;
-use std::fs;
+//use std::fs;
 use regex::Regex;
 
 pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
-    let re_push_int = Regex::new(r"^push (\d+)$").unwrap();
-    let re_push_float = Regex::new(r"^push (\d+.\d+)$").unwrap();
+    let re_push_int = Regex::new(r"^push (\-?\d+)$").unwrap();
+    let re_push_float = Regex::new(r"^push (\-?\d+.\d+)$").unwrap();
     let re_push_char = Regex::new(r"^push '(\w)'$").unwrap();
     let re_instr_usize =
         Regex::new(r"^(jump|pop_jump_if|pop_jump_if_not|get|set) (\d+)$").unwrap();

@@ -3,7 +3,7 @@ use axolotl::vm::bytecode::ByteCode::{self, *};
 use axolotl::vm::value::Value;
 
 fn run_prog(program: Vec<ByteCode>) -> VM {
-    let mut machine = VM::new();
+    let mut machine = VM::default();
     machine.run(&program);
     machine
 }

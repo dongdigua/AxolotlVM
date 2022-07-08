@@ -9,21 +9,33 @@ use console::Term;
 pub struct VM {
     pub stack: Vec<Value>,
     pub pc: usize,  // program counter
-    pub constant_pool: Vec<Value>
+    pub constant_pool: Vec<Value>,
+    delay: u64,
+    //render: bool,
 }
 
 impl VM {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
+        VM {
+            stack: Vec::with_capacity(256),
+            pc: 0,
+            constant_pool: Vec::with_capacity(16),
+            delay: 100,
+        }
+    }
+
+    pub fn new(delay: u64) -> Self {
         // https://doc.rust-lang.org/std/vec/struct.Vec.html#capacity-and-reallocation
         VM {
             stack: Vec::with_capacity(256),
             pc: 0,
             constant_pool: Vec::with_capacity(16),
+            delay: delay,
         }
     }
 
     pub fn reset(&mut self) {
-        *self = Self::new()
+        *self = Self::default()
     }
 
     pub fn run(&mut self, program: &Vec<ByteCode>) {
@@ -138,19 +150,19 @@ impl VM {
                 }
                 _ => todo!("what the fuck!"),
             }
-            self.render(byte, Term::stdout());
+            self.render(byte, self.delay, Term::stdout());
             self.pc += 1;
         }
     }
 
-    pub fn render(&self, byte: &ByteCode, mut term: Term) {
+    pub fn render(&self, byte: &ByteCode, delay: u64, mut term: Term) {
         write!(term, "{:?}\n", byte).unwrap();
         for i in &self.stack {
             write!(term, "|{:?}", i).unwrap();
         }
         write!(term, "|").unwrap();
         //term.flush();
-        thread::sleep(time::Duration::from_millis(100));
+        thread::sleep(time::Duration::from_millis(delay));
         term.clear_line().unwrap();
         term.clear_last_lines(1).unwrap();
     }
