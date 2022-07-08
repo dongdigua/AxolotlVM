@@ -1,15 +1,15 @@
 use axolotl::vm::machine::VM;
 use axolotl::vm::bytecode::ByteCode::{
-    PUSH,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    REM,
-    AND,
-    OR,
-    XOR,
-    NOT,
+    Push,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Rem,
+    And,
+    Or,
+    Xor,
+    Not,
     HALT
 };
 use axolotl::vm::value::Value;
@@ -17,9 +17,9 @@ use axolotl::vm::value::Value;
 #[test]
 fn test_add_two() {
     let program = vec![
-        PUSH(Value::Int(1)),
-        PUSH(Value::Int(1)),
-        ADD,
+        Push(Value::Int(1)),
+        Push(Value::Int(1)),
+        Add,
         HALT
     ];
 
@@ -31,10 +31,11 @@ fn test_add_two() {
 #[test]
 fn test_logical() {
     let program = vec![
-        PUSH(Value::Int(5)),
-        PUSH(Value::Int(3)),
-        XOR,
-        NOT
+        Push(Value::Int(5)),
+        Push(Value::Int(3)),
+        Xor,
+        Not,
+        HALT,
     ];
 
     let mut machine = VM::new();

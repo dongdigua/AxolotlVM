@@ -8,6 +8,7 @@ use console::Term;
 #[derive(Debug)]
 pub struct VM {
     pub stack: Vec<Value>,
+    pub pc: usize,  // program counter
     pub constant_pool: Vec<Value>
 }
 
@@ -16,6 +17,7 @@ impl VM {
         // https://doc.rust-lang.org/std/vec/struct.Vec.html#capacity-and-reallocation
         VM {
             stack: Vec::with_capacity(256),
+            pc: 0,
             constant_pool: Vec::with_capacity(16),
         }
     }
@@ -25,62 +27,65 @@ impl VM {
     }
 
     pub fn run(&mut self, program: &Vec<ByteCode>) {
-        for byte in program {
+        loop {
+            let byte = &program[self.pc];
             match byte {
                 ByteCode::HALT => break,
-                ByteCode::PUSH(value) => self.stack.push(value.clone()),
-                ByteCode::POP => {self.stack.pop();}
+                ByteCode::Push(value) => self.stack.push(value.clone()),
+                ByteCode::Pop => {self.stack.pop();}
 
-                ByteCode::SET(index) => self.constant_pool.insert(*index, self.stack.pop().unwrap()),
-                ByteCode::LOAD(index) => self.stack.push(self.constant_pool[*index].clone()),
+                ByteCode::Set(index) => self.constant_pool.insert(*index, self.stack.pop().unwrap()),
+                ByteCode::Get(index) => self.stack.push(self.constant_pool[*index].clone()),
+                ByteCode::Jump(pc) => self.pc = pc - 1,
 
-                ByteCode::ADD => {
+                ByteCode::Add => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();  // no need to "let mut a"
                     a.add(b);
                 }
-                ByteCode::SUB => {
+                ByteCode::Sub => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.sub(b);
                 }
-                ByteCode::MUL => {
+                ByteCode::Mul => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.mul(b);
                 }
-                ByteCode::DIV => {
+                ByteCode::Div => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.div(b);
                 }
-                ByteCode::REM => {
+                ByteCode::Rem => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.rem(b);
                 }
-                ByteCode::AND => {
+                ByteCode::And => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.and(b);
                 }
-                ByteCode::OR => {
+                ByteCode::Or => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.or(b);
                 }
-                ByteCode::XOR => {
+                ByteCode::Xor => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.xor(b);
                 }
-                ByteCode::NOT => {
+                ByteCode::Not => {
                     let a = self.stack.last_mut().unwrap();
                     a.not();
                 }
                 _ => todo!("what the fuck!"),
             }
             self.render(byte, Term::stdout());
+            self.pc += 1;
         }
     }
 

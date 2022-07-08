@@ -2,21 +2,33 @@ use crate::vm::value::Value;
 
 #[derive (Debug, PartialEq)]
 pub enum ByteCode {
+    // https://course.rs/practice/naming.html
     HALT,
-    PUSH(Value),
-    POP,
+    Push(Value),
+    Pop,
 
-    LOAD(usize),
-    SET(usize),
+    Get(usize),
+    Set(usize),
 
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    REM,
-    AND,
-    OR,
-    NOT,
-    XOR,
+    Jump(usize),
+    PopJumpIf(usize),
+    PopJumpIfNot(usize),
+
+    Greater,
+    GreaterEq,
+    Less,
+    LessEq,
+    Eq,
+    Neq,
+
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Rem,
+    And,
+    Or,
+    Not,
+    Xor,
 }
 
