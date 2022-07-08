@@ -32,21 +32,44 @@ impl VM {
             match byte {
                 ByteCode::HALT => break,
                 ByteCode::Push(value) => self.stack.push(value.clone()),
-                ByteCode::Pop => {self.stack.pop();}
+                ByteCode::Pop => {self.stack.pop().unwrap();}
 
                 ByteCode::Set(index) => self.constant_pool.insert(*index, self.stack.pop().unwrap()),
                 ByteCode::Get(index) => self.stack.push(self.constant_pool[*index].clone()),
-                ByteCode::Jump(pc) => self.pc = pc - 1,
 
+                ByteCode::Jump(pc) => self.pc = pc - 1,
+                ByteCode::PopJumpIf(pc) => {
+                    if *self.stack.last().unwrap() == Value::Bool(true) {
+                        self.stack.pop();
+                        self.pc = pc - 1;
+                    }
+                }
+                ByteCode::PopJumpIfNot(pc) => {
+                    if *self.stack.last().unwrap() == Value::Bool(false) {
+                        self.stack.pop();
+                        self.pc = pc - 1;
+                    }
+                }
+
+                // normally it should pop two and push one,
+                // but I want to resuce the number of operation
                 ByteCode::Add => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();  // no need to "let mut a"
                     a.add(b);
                 }
+                ByteCode::Inc => {
+                    let a = self.stack.last_mut().unwrap();
+                    a.add(Value::Int(1));
+                }
                 ByteCode::Sub => {
                     let b = self.stack.pop().unwrap();
                     let a = self.stack.last_mut().unwrap();
                     a.sub(b);
+                }
+                ByteCode::Dec => {
+                    let a = self.stack.last_mut().unwrap();
+                    a.sub(Value::Int(1));
                 }
                 ByteCode::Mul => {
                     let b = self.stack.pop().unwrap();
@@ -82,6 +105,37 @@ impl VM {
                     let a = self.stack.last_mut().unwrap();
                     a.not();
                 }
+
+                ByteCode::Greater => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a.gt(*b)));
+                }
+                ByteCode::Less => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a.lt(*b)));
+                }
+                ByteCode::Eq => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a.eq(*b)));
+                }
+                ByteCode::Neq => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(! a.eq(*b)));
+                }
+                ByteCode::Seq => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a == *b));
+                }
+                ByteCode::Sneq => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a != *b));
+                }
                 _ => todo!("what the fuck!"),
             }
             self.render(byte, Term::stdout());
@@ -96,7 +150,7 @@ impl VM {
         }
         write!(term, "|").unwrap();
         //term.flush();
-        thread::sleep(time::Duration::from_millis(500));
+        thread::sleep(time::Duration::from_millis(100));
         term.clear_line().unwrap();
         term.clear_last_lines(1).unwrap();
     }

@@ -20,12 +20,16 @@ pub enum ByteCode {
     LessEq,
     Eq,
     Neq,
+    Seq,  // strict
+    Sneq,
 
     Add,
     Sub,
     Mul,
     Div,
     Rem,
+    Inc,
+    Dec,
     And,
     Or,
     Not,

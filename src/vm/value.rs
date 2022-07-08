@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter};
 
-#[derive(Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum Value {
     Int(i32),
     Float(f32),
@@ -151,6 +151,33 @@ impl Value {
             Value::Bool(s) => *s = ! *s,
             Value::Char(s) => *s = ! *s,
             _ => panic!("Wrong type for logical computing")
+        }
+    }
+
+    pub fn gt(self, val: Value) -> bool {
+        match self {
+            Value::Int(s) => s > val.try_into_int(),
+            Value::Float(s) => s > val.try_into_float(),
+            Value::Char(s) => s > val.try_into_char(),
+            _ => panic!("Wrong type for comparation")
+        }
+    }
+
+    pub fn lt(self, val: Value) -> bool {
+        match self {
+            Value::Int(s) => s < val.try_into_int(),
+            Value::Float(s) => s < val.try_into_float(),
+            Value::Char(s) => s < val.try_into_char(),
+            _ => panic!("Wrong type for comparation")
+        }
+    }
+
+    pub fn eq(self, val: Value) -> bool {
+        match self {
+            Value::Int(s) => s == val.try_into_int(),
+            Value::Float(s) => s == val.try_into_float(),
+            Value::Char(s) => s == val.try_into_char(),
+            _ => panic!("Wrong type for comparation")
         }
     }
 }

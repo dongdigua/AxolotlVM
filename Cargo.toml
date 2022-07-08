@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 console = "0.15"
+clap = "3.2"
+regex = "1.6"

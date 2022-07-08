@@ -4,6 +4,7 @@ use axolotl::vm::machine::VM;
 use axolotl::vm::bytecode::ByteCode;
 use axolotl::vm::value::Value;
 use axolotl::asm;
+use std::fs;
 
 fn prog() {
     let program: Vec<ByteCode> = vec![
@@ -31,11 +32,18 @@ fn main() {
         let filename = &args[2];
         match &args[1][..] {
             "com" => {
-                asm::compile(filename);
+                let content = fs::read_to_string(filename).unwrap();
+                let v = asm::compile_to_enum(content);
+                println!("{:?}", v);
+                //asm::compile(filename);
             },
             "bin" => {
-                asm::execute_bin(filename);
+                todo!();
+                //asm::execute_bin(filename);
             },
+            "sim" => {
+                todo!();
+            }
             _ => panic!("Unknown argument!")
         }
     } else {
