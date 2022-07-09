@@ -16,6 +16,8 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
         let current_code = match line {
             "HALT" => ByteCode::HALT,
             "pop" => ByteCode::Pop,
+            "copy" => ByteCode::Copy,
+            "swap" => ByteCode::Swap,
             ">" => ByteCode::Greater,
             "<" => ByteCode::Less,
             ">=" => ByteCode::GreaterEq,
@@ -66,7 +68,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         _ => todo!()
                     }
                 } else {
-                    todo!()
+                    todo!("wrong {}", line)
                 }
             }
         };
@@ -76,11 +78,3 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     prog
 }
 
-
-fn enum_to_bin() {}
-
-pub fn compile() {}
-
-pub fn execute_bin(file: &String) -> Vec<ByteCode> {
-    todo!()
-}

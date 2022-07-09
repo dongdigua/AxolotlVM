@@ -45,8 +45,24 @@ impl VM {
                 ByteCode::HALT => break,
                 ByteCode::Push(value) => self.stack.push(value.clone()),
                 ByteCode::Pop => {self.stack.pop().unwrap();}
+                ByteCode::Copy => {
+                    let a = self.stack.last().unwrap();
+                    self.stack.push(*a);
+                }
+                ByteCode::Swap => {
+                    let b = self.stack.pop().unwrap();
+                    let a = self.stack.pop().unwrap();
+                    self.stack.push(b);
+                    self.stack.push(a);
+                }
 
-                ByteCode::Set(index) => self.constant_pool.insert(*index, self.stack.pop().unwrap()),
+                ByteCode::Set(index) => {
+                    if self.constant_pool.len() > *index {
+                        self.constant_pool[*index] = self.stack.pop().unwrap();
+                    } else {
+                        self.constant_pool.insert(*index, self.stack.pop().unwrap());
+                    }
+                },
                 ByteCode::Get(index) => self.stack.push(self.constant_pool[*index].clone()),
 
                 ByteCode::Jump(pc) => self.pc = pc - 1,
@@ -123,10 +139,20 @@ impl VM {
                     let a = self.stack[self.stack.len() - 2];
                     self.stack.push(Value::Bool(a.gt(*b)));
                 }
+                ByteCode::GreaterEq => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(! a.lt(*b)));
+                }
                 ByteCode::Less => {
                     let b = self.stack.last().unwrap();
                     let a = self.stack[self.stack.len() - 2];
                     self.stack.push(Value::Bool(a.lt(*b)));
+                }
+                ByteCode::LessEq => {
+                    let b = self.stack.last().unwrap();
+                    let a = self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(! a.gt(*b)));
                 }
                 ByteCode::Eq => {
                     let b = self.stack.last().unwrap();

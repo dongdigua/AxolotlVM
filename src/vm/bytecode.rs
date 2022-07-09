@@ -6,6 +6,8 @@ pub enum ByteCode {
     HALT,
     Push(Value),
     Pop,
+    Swap,
+    Copy,
 
     Get(usize),
     Set(usize),
