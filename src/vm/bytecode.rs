@@ -7,7 +7,8 @@ pub enum ByteCode {
     Push(Value),
     Pop,
     Swap,
-    Copy,
+    Dup,
+    Copy(usize),
 
     Get(usize),
     Set(usize),

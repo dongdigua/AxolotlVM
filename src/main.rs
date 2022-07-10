@@ -8,6 +8,7 @@ use axolotl::vm::bytecode::ByteCode;
 use axolotl::vm::value::Value;
 use axolotl::asm;
 use std::fs;
+use std::time::Instant;
 use clap::{Arg, App, SubCommand};
 
 fn prog(delay: u64) {
@@ -66,8 +67,12 @@ fn main() {
             let content = fs::read_to_string(file).unwrap();
             let program = asm::compile_to_enum(content);
 
+            let now = Instant::now();
             let mut machine = VM::new(delay);
             machine.run(&program);
+            
+            let elapsed = now.elapsed();
+            println!("{:?}", elapsed);
             println!("{:?}", machine);
         });
     }

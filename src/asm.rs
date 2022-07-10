@@ -9,14 +9,18 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     let re_push_char = Regex::new(r"^push '(\w)'$").unwrap();
     let re_instr_usize =
         Regex::new(r"^(jump|pop_jump_if|pop_jump_if_not|get|set) (\d+)$").unwrap();
+    let re_copy = Regex::new(r"^copy -(\d+)$").unwrap();
+    let re_trim = Regex::new(r"\s*;;.+$").unwrap();
 
     let mut prog = vec![];
 
-    for line in file_content.lines() {
+    for raw_line in file_content.lines() {
+        let line = &*re_trim.replace(raw_line, "");
+
         let current_code = match line {
             "HALT" => ByteCode::HALT,
             "pop" => ByteCode::Pop,
-            "copy" => ByteCode::Copy,
+            "dup" => ByteCode::Dup,
             "swap" => ByteCode::Swap,
             ">" => ByteCode::Greater,
             "<" => ByteCode::Less,
@@ -54,6 +58,11 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                     let the_char = cap[1].chars().collect::<Vec<_>>()[0];
 
                     ByteCode::Push(Value::Char(the_char as u32))
+                } else if re_copy.is_match(line) {
+                    let cap = re_copy.captures(line).unwrap();
+                    let the_usize = cap[1].parse::<usize>().unwrap();
+
+                    ByteCode::Copy(the_usize)
                 } else if re_instr_usize.is_match(line) {
                     let cap = re_instr_usize.captures(line).unwrap();
                     let instruction = &cap[1];

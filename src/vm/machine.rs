@@ -45,9 +45,15 @@ impl VM {
                 ByteCode::HALT => break,
                 ByteCode::Push(value) => self.stack.push(value.clone()),
                 ByteCode::Pop => {self.stack.pop().unwrap();}
-                ByteCode::Copy => {
+                ByteCode::Dup => {
                     let a = self.stack.last().unwrap();
                     self.stack.push(*a);
+                }
+                ByteCode::Copy(relative_index) => {
+                    // from tsoding live 1 fibonacci
+                    // Copy(0) == Dup
+                    let val = self.stack[self.stack.len() - 1 - *relative_index];
+                    self.stack.push(val);
                 }
                 ByteCode::Swap => {
                     let b = self.stack.pop().unwrap();

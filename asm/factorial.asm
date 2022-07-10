@@ -1,11 +1,11 @@
-push 1
+push 1 ;; acc
 set 0
-push 1
-push 6
+push 1 ;; compare
+push 6 ;; n
 ==
 pop_jump_if_not 7
 pop_jump_if 14
-copy
+dup
 get 0
 swap
 *
