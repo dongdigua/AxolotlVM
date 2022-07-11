@@ -11,7 +11,7 @@ pub struct VM {
     pub pc: usize,  // program counter
     pub constant_pool: Vec<Value>,
     delay: u64,
-    //render: bool,
+    render: bool,
 }
 
 impl VM {
@@ -21,16 +21,18 @@ impl VM {
             pc: 0,
             constant_pool: Vec::with_capacity(16),
             delay: 100,
+            render: false,
         }
     }
 
-    pub fn new(delay: u64) -> Self {
+    pub fn new(delay: u64, render: bool) -> Self {
         // https://doc.rust-lang.org/std/vec/struct.Vec.html#capacity-and-reallocation
         VM {
             stack: Vec::with_capacity(256),
             pc: 0,
             constant_pool: Vec::with_capacity(16),
             delay: delay,
+            render,
         }
     }
 
@@ -182,7 +184,9 @@ impl VM {
                 }
                 _ => todo!("what the fuck!"),
             }
-            self.render(byte, self.delay, Term::stdout());
+            if self.render {
+                self.render(byte, self.delay, Term::stdout());
+            }
             self.pc += 1;
         }
     }

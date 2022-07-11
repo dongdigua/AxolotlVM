@@ -1,21 +1,17 @@
 #![cfg_attr(debug_assertions, allow(dead_code, unused_imports, unused_variables, unused_mut))]
 
-#[macro_use]
-extern crate clap;
-
 use axolotl::vm::machine::VM;
 use axolotl::vm::bytecode::ByteCode;
 use axolotl::vm::value::Value;
 use axolotl::asm;
 
 use std::fs::{self, OpenOptions, File};
-use std::io::Write;
 use std::time::Instant;
 
 use clap::{Arg, App, SubCommand};
 use bincode;
 
-fn prog(delay: u64) {
+fn prog(delay: u64, render: bool) {
     let program: Vec<ByteCode> = vec![
         ByteCode::Push(Value::Int(1)),
         ByteCode::Push(Value::Int(5)),
@@ -27,7 +23,7 @@ fn prog(delay: u64) {
         ByteCode::HALT
     ];
 
-    let mut machine = VM::new(delay);
+    let mut machine = VM::new(delay, render);
     machine.run(&program);
     println!("\n{:?}", machine);
 }
@@ -35,7 +31,7 @@ fn prog(delay: u64) {
 fn main() {
     // https://www.jianshu.com/p/bc693e49670f
     let matches = App::new("AxolotlVM")
-        .version("0.1.0")
+        .version("0.2.0")
         .about("A stacked-based virtual machine")
         .author("By: 董地瓜@bilibili")
         .arg(Arg::new("delay")
@@ -44,6 +40,11 @@ fn main() {
              .value_name("DELAY")
              .takes_value(true)
              .help("The delay of each cycle"))
+        .arg(Arg::new("no-render")
+             .required(false)
+             .long("no-render")
+             .action(clap::ArgAction::SetTrue)
+             .help("Render or not"))
         .subcommand(App::new("run")
                     .about("Run VM bytecode binary.")
                     .arg(Arg::new("BIN")
@@ -65,6 +66,8 @@ fn main() {
         .unwrap_or("0")
         .parse::<u64>()
         .unwrap();
+    let render = ! matches.get_one::<bool>("no-render").unwrap();
+
     let mut status = true;
     // stolen from GloomScript
 
@@ -83,7 +86,7 @@ fn main() {
             let program = bincode::decode_from_std_read(&mut bin_file, config).unwrap();
 
             let now = Instant::now();
-            let mut machine = VM::new(delay);
+            let mut machine = VM::new(delay, render);
             machine.run(&program);
             
             let elapsed = now.elapsed();
@@ -107,7 +110,7 @@ fn main() {
                 .open(file.to_owned() + ".abin")
                 .unwrap();
             
-            bincode::encode_into_std_write(program, &mut bin_file, config);
+            bincode::encode_into_std_write(program, &mut bin_file, config).unwrap();
             println!("bytecode: {}", file.to_owned() + ".abin");
         });
     }
@@ -121,6 +124,6 @@ fn main() {
     }
 
     if status {
-        prog(delay);
+        prog(delay, render);
     }
 }

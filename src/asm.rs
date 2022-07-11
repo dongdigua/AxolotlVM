@@ -1,7 +1,34 @@
 use crate::vm::bytecode::ByteCode;
 use crate::vm::value::Value;
-//use std::fs;
+use std::collections::HashMap;
 use regex::Regex;
+
+fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
+    let re_trim = Regex::new(r"\s+;;.+$").unwrap();
+    let re_empty = Regex::new(r"^\s*$").unwrap();
+    let re_lable = Regex::new(r"\s+<- (.+)$").unwrap();
+    
+    let mut processed = vec![];
+    let mut lable_pool = HashMap::new();
+
+    for raw_line in file.lines() {
+        let line = &*re_trim.replace(raw_line, "");
+        if re_empty.is_match(line) {
+            continue
+        }
+
+        if re_lable.is_match(line) {
+            let cap = re_lable.captures(line).unwrap();
+            lable_pool.insert(cap[1].to_owned(), processed.len());
+            let line_trimed_lable = &*re_lable.replace(line, "");
+            processed.push(line_trimed_lable.to_owned());
+        } else {
+            processed.push(line.to_owned());
+        }
+    }
+    (processed, lable_pool)
+}
+
 
 pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     let re_push_int = Regex::new(r"^push (\-?\d+)$").unwrap();
@@ -10,13 +37,12 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     let re_instr_usize =
         Regex::new(r"^(jump|pop_jump_if|pop_jump_if_not|get|set) (\d+)$").unwrap();
     let re_copy = Regex::new(r"^copy -(\d+)$").unwrap();
-    let re_trim = Regex::new(r"\s*;;.+$").unwrap();
+    let re_jump = Regex::new(r"^(jump|pop_jump_if|pop_jump_if_not) (.+)$").unwrap();
 
     let mut prog = vec![];
-
-    for raw_line in file_content.lines() {
-        let line = &*re_trim.replace(raw_line, "");
-
+    let (processed, lable_pool) = pre_process(file_content);
+    for line in processed {
+        let line = &line[..];
         let current_code = match line {
             "HALT" => ByteCode::HALT,
             "pop" => ByteCode::Pop,
@@ -45,7 +71,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                 if re_push_int.is_match(line) {
                     let cap = re_push_int.captures(line).unwrap();
                     // the full match is at capture group 0.
-                    let the_int = cap[1].parse::<i32>().unwrap();
+                    let the_int = cap[1].parse::<i64>().unwrap();
 
                     ByteCode::Push(Value::Int(the_int))
                 } else if re_push_float.is_match(line) {
@@ -76,8 +102,19 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         "set" => ByteCode::Set(the_usize),
                         _ => todo!()
                     }
+                } else if re_jump.is_match(line) {
+                    let cap = re_jump.captures(line).unwrap();
+                    let instruction = &cap[1];
+                    let index = lable_pool.get(&cap[2]).unwrap();
+
+                    match instruction {
+                        "jump" => ByteCode::Jump(*index),
+                        "pop_jump_if" => ByteCode::PopJumpIf(*index),
+                        "pop_jump_if_not" => ByteCode::PopJumpIfNot(*index),
+                        _ => todo!()
+                    }
                 } else {
-                    todo!("wrong {}", line)
+                    todo!("wrong {}\n{:?}", line, lable_pool)
                 }
             }
         };

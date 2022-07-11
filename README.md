@@ -18,7 +18,6 @@ YouTube: [c serialization](https://youtu.be/QrKpqdBiFRI)<br>
 
 
 ## TODO
-- render or not
 - error message
 - lambda
 - syscall?

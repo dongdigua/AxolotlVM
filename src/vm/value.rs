@@ -3,7 +3,7 @@ use bincode::{Encode, Decode};
 
 #[derive(Copy, Clone, PartialEq, Encode, Decode)]
 pub enum Value {
-    Int(i32),
+    Int(i64),
     Float(f32),
     Char(u32),
     Bool(bool),
@@ -23,12 +23,12 @@ impl Debug for Value {
 }
 
 impl Value {
-    fn try_into_int(self) -> i32 {
+    fn try_into_int(self) -> i64 {
         match self {
             Value::Int(val) => val,
-            Value::Float(val) => val as i32,
-            Value::Char(val) => val as i32,
-            Value::Nil => 0_i32,
+            Value::Float(val) => val as i64,
+            Value::Char(val) => val as i64,
+            Value::Nil => 0_i64,
             _ => panic!("Cannot convert Value::Bool to Value::Int"),
         }
     }
@@ -62,7 +62,7 @@ impl Value {
     fn arithmetic(
         &mut self,
         val: Value,
-        func_int: &dyn Fn(i32, i32) -> i32,
+        func_int: &dyn Fn(i64, i64) -> i64,
         func_float: &dyn Fn(f32, f32) -> f32,
         func_uint: &dyn Fn(u32, u32) -> u32,
     ) {
@@ -77,7 +77,7 @@ impl Value {
     pub fn add(&mut self, val: Value) {
         self.arithmetic(
             val,
-            &|x: i32, y: i32| x + y,
+            &|x: i64, y: i64| x + y,
             &|x: f32, y: f32| x + y,
             &|x: u32, y: u32| x + y,
         )
@@ -86,7 +86,7 @@ impl Value {
     pub fn sub(&mut self, val: Value) {
         self.arithmetic(
             val,
-            &|x: i32, y: i32| x - y,
+            &|x: i64, y: i64| x - y,
             &|x: f32, y: f32| x - y,
             &|x: u32, y: u32| x - y,
         )
@@ -95,7 +95,7 @@ impl Value {
     pub fn mul(&mut self, val: Value) {
         self.arithmetic(
             val,
-            &|x: i32, y: i32| x * y,
+            &|x: i64, y: i64| x * y,
             &|x: f32, y: f32| x * y,
             &|x: u32, y: u32| x * y,
         )
@@ -104,7 +104,7 @@ impl Value {
     pub fn div(&mut self, val: Value) {
         self.arithmetic(
             val,
-            &|x: i32, y: i32| x / y,
+            &|x: i64, y: i64| x / y,
             &|x: f32, y: f32| x / y,
             &|x: u32, y: u32| x / y,
         )
@@ -113,7 +113,7 @@ impl Value {
     pub fn rem(&mut self, val: Value) {
         self.arithmetic(
             val,
-            &|x: i32, y: i32| x % y,
+            &|x: i64, y: i64| x % y,
             &|x: f32, y: f32| x % y,
             &|x: u32, y: u32| x % y,
         )
