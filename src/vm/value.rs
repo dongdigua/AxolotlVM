@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Formatter};
+use bincode::{Encode, Decode};
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Encode, Decode)]
 pub enum Value {
     Int(i32),
     Float(f32),

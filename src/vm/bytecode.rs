@@ -1,6 +1,7 @@
 use crate::vm::value::Value;
+use bincode::{Encode, Decode};
 
-#[derive (Debug, PartialEq)]
+#[derive (Debug, PartialEq, Encode, Decode)]
 pub enum ByteCode {
     // https://course.rs/practice/naming.html
     HALT,
