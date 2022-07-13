@@ -2,6 +2,7 @@ push 10 ;; n
 set 0
 push 0  ;; initial
 push 1  ;; initial
+
 get 0 <- loop
 push 1
 >
