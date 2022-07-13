@@ -2,7 +2,7 @@ use crate::vm::bytecode::ByteCode;
 use crate::vm::value::Value;
 use std::{thread, time};
 use std::io::Write;
-use console::Term;
+use console::{Term, Key};
 
 
 #[derive(Debug)]
@@ -10,8 +10,10 @@ pub struct VM {
     pub stack: Vec<Value>,
     pub pc: usize,  // program counter
     pub constant_pool: Vec<Value>,
+
     delay: u64,
     render: bool,
+    debug: bool,
 }
 
 impl VM {
@@ -22,10 +24,11 @@ impl VM {
             constant_pool: Vec::with_capacity(16),
             delay: 100,
             render: false,
+            debug: false,
         }
     }
 
-    pub fn new(delay: u64, render: bool) -> Self {
+    pub fn new(delay: u64, render: bool, debug: bool) -> Self {
         // https://doc.rust-lang.org/std/vec/struct.Vec.html#capacity-and-reallocation
         VM {
             stack: Vec::with_capacity(256),
@@ -33,11 +36,16 @@ impl VM {
             constant_pool: Vec::with_capacity(16),
             delay: delay,
             render,
+            debug,
         }
     }
 
     pub fn reset(&mut self) {
         *self = Self::default()
+    }
+
+    fn pop(&mut self) -> Value {
+        self.stack.pop().expect("[RUNTIME]: STACK UNDERFLOW")
     }
 
     pub fn run(&mut self, program: &Vec<ByteCode>) {
@@ -46,7 +54,7 @@ impl VM {
             match byte {
                 ByteCode::HALT => break,
                 ByteCode::Push(value) => self.stack.push(value.clone()),
-                ByteCode::Pop => {self.stack.pop().unwrap();}
+                ByteCode::Pop => {self.pop();}
                 ByteCode::Dup => {
                     let a = self.stack.last().unwrap();
                     self.stack.push(*a);
@@ -58,17 +66,18 @@ impl VM {
                     self.stack.push(val);
                 }
                 ByteCode::Swap => {
-                    let b = self.stack.pop().unwrap();
-                    let a = self.stack.pop().unwrap();
+                    let b = self.pop();
+                    let a = self.pop();
                     self.stack.push(b);
                     self.stack.push(a);
                 }
 
                 ByteCode::Set(index) => {
                     if self.constant_pool.len() > *index {
-                        self.constant_pool[*index] = self.stack.pop().unwrap();
+                        self.constant_pool[*index] = self.pop();
                     } else {
-                        self.constant_pool.insert(*index, self.stack.pop().unwrap());
+                        let val = self.pop();
+                        self.constant_pool.insert(*index, val);
                     }
                 },
                 ByteCode::Get(index) => self.stack.push(self.constant_pool[*index].clone()),
@@ -90,7 +99,7 @@ impl VM {
                 // normally it should pop two and push one,
                 // but I want to resuce the number of operation
                 ByteCode::Add => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();  // no need to "let mut a"
                     a.add(b);
                 }
@@ -99,7 +108,7 @@ impl VM {
                     a.add(Value::Int(1));
                 }
                 ByteCode::Sub => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.sub(b);
                 }
@@ -108,32 +117,32 @@ impl VM {
                     a.sub(Value::Int(1));
                 }
                 ByteCode::Mul => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.mul(b);
                 }
                 ByteCode::Div => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.div(b);
                 }
                 ByteCode::Rem => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.rem(b);
                 }
                 ByteCode::And => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.and(b);
                 }
                 ByteCode::Or => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.or(b);
                 }
                 ByteCode::Xor => {
-                    let b = self.stack.pop().unwrap();
+                    let b = self.pop();
                     let a = self.stack.last_mut().unwrap();
                     a.xor(b);
                 }
@@ -182,23 +191,36 @@ impl VM {
                     let a = self.stack[self.stack.len() - 2];
                     self.stack.push(Value::Bool(a != *b));
                 }
-                _ => todo!("what the fuck!"),
+                //_ => todo!("wtf!"),
             }
             if self.render {
-                self.render(byte, self.delay, Term::stdout());
+                self.render(byte, self.delay, self.debug, Term::stdout());
             }
             self.pc += 1;
         }
     }
 
-    pub fn render(&self, byte: &ByteCode, delay: u64, mut term: Term) {
+    pub fn render(&mut self, byte: &ByteCode, delay: u64, debug: bool, mut term: Term) {
         write!(term, "{:?}\n", byte).unwrap();
         for i in &self.stack {
             write!(term, "|{:?}", i).unwrap();
         }
         write!(term, "|").unwrap();
-        //term.flush();
-        thread::sleep(time::Duration::from_millis(delay));
+        if debug {
+            loop {
+                match term.read_key().unwrap() {
+                    Key::Enter => break,
+                    Key::Char(' ') => break,
+                    Key::Char('r') => {
+                        self.debug = false;
+                        break
+                    }
+                    _ => (),
+                }
+            }
+        } else {
+            thread::sleep(time::Duration::from_millis(delay));
+        }
         term.clear_line().unwrap();
         term.clear_last_lines(1).unwrap();
     }

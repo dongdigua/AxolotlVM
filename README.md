@@ -18,7 +18,6 @@ YouTube: [c serialization](https://youtu.be/QrKpqdBiFRI)<br>
 
 
 ## TODO
-- error message
-- lambda
+- lambda/make function
 - syscall?
 

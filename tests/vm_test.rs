@@ -74,3 +74,13 @@ fn test_conditional_jump() {
     assert_eq!([Value::Int(1), Value::Int(0)], machine.stack[..])
 }
 
+#[test]
+#[should_panic(expected = "[RUNTIME]: STACK UNDERFLOW")]
+fn stack_underflow() {
+    let program = vec![
+        Push(Value::Int(1)),
+        Pop,
+        Pop
+    ];
+    run_prog(program);  
+}

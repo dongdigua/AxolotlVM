@@ -100,7 +100,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         "pop_jump_if_not" => ByteCode::PopJumpIfNot(the_usize),
                         "get" => ByteCode::Get(the_usize),
                         "set" => ByteCode::Set(the_usize),
-                        _ => todo!()
+                        _ => panic!("[COMPILE]: Unknown instruction followed by usize")
                     }
                 } else if re_jump.is_match(line) {
                     let cap = re_jump.captures(line).unwrap();
@@ -114,7 +114,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         _ => todo!()
                     }
                 } else {
-                    todo!("wrong {}\n{:?}", line, lable_pool)
+                    panic!("[COMPILE]: Unknown instruction {}\n{:?}", line, lable_pool)
                 }
             }
         };

@@ -29,7 +29,7 @@ impl Value {
             Value::Float(val) => val as i64,
             Value::Char(val) => val as i64,
             Value::Nil => 0_i64,
-            _ => panic!("Cannot convert Value::Bool to Value::Int"),
+            _ => panic!("[VALUE]: Cannot convert Value::Bool to Value::Int"),
         }
     }
 
@@ -39,7 +39,7 @@ impl Value {
             Value::Int(val) => val as f32,
             Value::Char(val) => val as u8 as f32,
             Value::Nil => 0f32,
-            _ => panic!("Cannot convert Value::Bool to Value::Float"),
+            _ => panic!("[VALUE]: Cannot convert Value::Bool to Value::Float"),
         }
     }
 
@@ -48,14 +48,14 @@ impl Value {
             Value::Char(val) => val,
             Value::Int(val) => val as u32,
             Value::Float(val) => val as u32,
-            _ => panic!("Cannot convert Value::Bool or Value::Nil to Value::Char"),
+            _ => panic!("[VALUE]: Cannot convert Value::Bool or Value::Nil to Value::Char"),
         }
     }
 
     fn try_into_bool(self) -> bool {
         match self {
             Value::Bool(val) => val,
-            _ => panic!("Cannot convert to Value::Bool")
+            _ => panic!("[VALUE]: Cannot convert to Value::Bool")
         }
     }
 
@@ -70,7 +70,7 @@ impl Value {
             Value::Int(s) => *s = func_int(*s, val.try_into_int()),
             Value::Float(s) => *s = func_float(*s, val.try_into_float()),
             Value::Char(s) => *s = func_uint(*s, val.try_into_char()),
-            _ => panic!("Wrong type for arithmetical computing"),
+            _ => panic!("[VALUE]: Wrong type for arithmetical computing"),
         }
     }
 
@@ -124,7 +124,7 @@ impl Value {
             Value::Int(s) => *s = *s & val.try_into_int(),
             Value::Bool(s) => *s = *s & val.try_into_bool(),
             Value::Char(s) => *s = *s & val.try_into_char(),
-            _ => panic!("Wrong type for logical computing")
+            _ => panic!("[VALUE]: Wrong type for logical computing")
         }
     }
     
@@ -133,7 +133,7 @@ impl Value {
             Value::Int(s) => *s = *s | val.try_into_int(),
             Value::Bool(s) => *s = *s | val.try_into_bool(),
             Value::Char(s) => *s = *s | val.try_into_char(),
-            _ => panic!("Wrong type for logical computing")
+            _ => panic!("[VALUE]: Wrong type for logical computing")
         }
     }
     
@@ -142,7 +142,7 @@ impl Value {
             Value::Int(s) => *s = *s ^ val.try_into_int(),
             Value::Bool(s) => *s = *s ^ val.try_into_bool(),
             Value::Char(s) => *s = *s ^ val.try_into_char(),
-            _ => panic!("Wrong type for logical computing")
+            _ => panic!("[VALUE]: Wrong type for logical computing")
         }
     }
 
@@ -151,7 +151,7 @@ impl Value {
             Value::Int(s) => *s = ! *s,
             Value::Bool(s) => *s = ! *s,
             Value::Char(s) => *s = ! *s,
-            _ => panic!("Wrong type for logical computing")
+            _ => panic!("[VALUE]: Wrong type for logical computing")
         }
     }
 
@@ -160,7 +160,7 @@ impl Value {
             Value::Int(s) => s > val.try_into_int(),
             Value::Float(s) => s > val.try_into_float(),
             Value::Char(s) => s > val.try_into_char(),
-            _ => panic!("Wrong type for comparation")
+            _ => panic!("[VALUE]: Wrong type for comparation")
         }
     }
 
@@ -169,7 +169,7 @@ impl Value {
             Value::Int(s) => s < val.try_into_int(),
             Value::Float(s) => s < val.try_into_float(),
             Value::Char(s) => s < val.try_into_char(),
-            _ => panic!("Wrong type for comparation")
+            _ => panic!("[VALUE]: Wrong type for comparation")
         }
     }
 
@@ -178,7 +178,7 @@ impl Value {
             Value::Int(s) => s == val.try_into_int(),
             Value::Float(s) => s == val.try_into_float(),
             Value::Char(s) => s == val.try_into_char(),
-            _ => panic!("Wrong type for comparation")
+            _ => panic!("[VALUE]: Wrong type for comparation")
         }
     }
 }

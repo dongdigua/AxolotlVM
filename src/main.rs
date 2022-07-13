@@ -23,7 +23,7 @@ fn prog(delay: u64, render: bool) {
         ByteCode::HALT
     ];
 
-    let mut machine = VM::new(delay, render);
+    let mut machine = VM::new(delay, render, false);
     machine.run(&program);
     println!("\n{:?}", machine);
 }
@@ -46,10 +46,16 @@ fn main() {
              .action(clap::ArgAction::SetTrue)
              .help("Render or not"))
         .subcommand(App::new("run")
-                    .about("Run VM bytecode binary.")
+                    .about("Run VM bytecode.")
                     .arg(Arg::new("BIN")
                          .help("assembly file")
-                         .required(true)))
+                         .required(true))
+                    .arg(Arg::new("debug")
+                         .required(false)
+                         .short('d')
+                         .long("debug")
+                         .action(clap::ArgAction::SetTrue)
+                         .help("stepping debug or not")))
         .subcommand(App::new("asm")
                     .about("Compile the asm file to binary.")
                     .arg(Arg::new("ASM")
@@ -79,6 +85,13 @@ fn main() {
     if status {
         matches.subcommand_matches("run").map(|m| {
             status = false;
+
+            let debug = if render {
+                *m.get_one::<bool>("debug").unwrap()
+            } else {
+                false
+            };
+
             let file = m.value_of("BIN").unwrap();
             println!("axolotl bin: {}", file);
 
@@ -86,7 +99,7 @@ fn main() {
             let program = bincode::decode_from_std_read(&mut bin_file, config).unwrap();
 
             let now = Instant::now();
-            let mut machine = VM::new(delay, render);
+            let mut machine = VM::new(delay, render, debug);
             machine.run(&program);
             
             let elapsed = now.elapsed();
