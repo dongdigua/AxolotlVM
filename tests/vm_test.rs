@@ -47,9 +47,9 @@ fn test_different_type() {
 }
 
 #[test]
-fn test_jump() {
+fn test_jmp() {
     let program = vec![
-        Jump(2),
+        Jmp(2),
         Push(Value::Bool(false)),
         Push(Value::Bool(true)),
         HALT
@@ -59,15 +59,15 @@ fn test_jump() {
 }
 
 #[test]
-fn test_conditional_jump() {
+fn test_conditional_jmp() {
     let program = vec![
         Push(Value::Int(1)),
         Push(Value::Int(5)),
         Greater,
-        PopJumpIfNot(5),
-        PopJumpIf(7),
+        PopJmpIfNot(5),
+        PopJmpIf(7),
         Dec,
-        Jump(2),
+        Jmp(2),
         HALT
     ];
     let machine = run_prog(program);

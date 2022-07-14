@@ -82,14 +82,14 @@ impl VM {
                 },
                 ByteCode::Get(index) => self.stack.push(self.constant_pool[*index].clone()),
 
-                ByteCode::Jump(pc) => self.pc = pc - 1,
-                ByteCode::PopJumpIf(pc) => {
+                ByteCode::Jmp(pc) => self.pc = pc - 1,
+                ByteCode::PopJmpIf(pc) => {
                     if *self.stack.last().unwrap() == Value::Bool(true) {
                         self.stack.pop();
                         self.pc = pc - 1;
                     }
                 }
-                ByteCode::PopJumpIfNot(pc) => {
+                ByteCode::PopJmpIfNot(pc) => {
                     if *self.stack.last().unwrap() == Value::Bool(false) {
                         self.stack.pop();
                         self.pc = pc - 1;

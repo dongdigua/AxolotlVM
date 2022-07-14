@@ -14,9 +14,9 @@ pub enum ByteCode {
     Get(usize),
     Set(usize),
 
-    Jump(usize),
-    PopJumpIf(usize),
-    PopJumpIfNot(usize),
+    Jmp(usize),
+    PopJmpIf(usize),
+    PopJmpIfNot(usize),
 
     Greater,
     GreaterEq,

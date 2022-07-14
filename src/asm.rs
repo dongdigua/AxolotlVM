@@ -35,9 +35,9 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     let re_push_float = Regex::new(r"^push (\-?\d+.\d+)$").unwrap();
     let re_push_char = Regex::new(r"^push '(\w)'$").unwrap();
     let re_instr_usize =
-        Regex::new(r"^(jump|pop_jump_if|pop_jump_if_not|get|set) (\d+)$").unwrap();
+        Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|get|set) (\d+)$").unwrap();
     let re_copy = Regex::new(r"^copy -(\d+)$").unwrap();
-    let re_jump = Regex::new(r"^(jump|pop_jump_if|pop_jump_if_not) (.+)$").unwrap();
+    let re_jmp = Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not) (.+)$").unwrap();
 
     let mut prog = vec![];
     let (processed, lable_pool) = pre_process(file_content);
@@ -95,22 +95,22 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                     let the_usize = cap[2].parse::<usize>().unwrap();
 
                     match instruction {
-                        "jump" => ByteCode::Jump(the_usize),
-                        "pop_jump_if" => ByteCode::PopJumpIf(the_usize),
-                        "pop_jump_if_not" => ByteCode::PopJumpIfNot(the_usize),
+                        "jmp" => ByteCode::Jmp(the_usize),
+                        "pop_jmp_if" => ByteCode::PopJmpIf(the_usize),
+                        "pop_jmp_if_not" => ByteCode::PopJmpIfNot(the_usize),
                         "get" => ByteCode::Get(the_usize),
                         "set" => ByteCode::Set(the_usize),
                         _ => panic!("[COMPILE]: Unknown instruction followed by usize")
                     }
-                } else if re_jump.is_match(line) {
-                    let cap = re_jump.captures(line).unwrap();
+                } else if re_jmp.is_match(line) {
+                    let cap = re_jmp.captures(line).unwrap();
                     let instruction = &cap[1];
                     let index = lable_pool.get(&cap[2]).unwrap();
 
                     match instruction {
-                        "jump" => ByteCode::Jump(*index),
-                        "pop_jump_if" => ByteCode::PopJumpIf(*index),
-                        "pop_jump_if_not" => ByteCode::PopJumpIfNot(*index),
+                        "jmp" => ByteCode::Jmp(*index),
+                        "pop_jmp_if" => ByteCode::PopJmpIf(*index),
+                        "pop_jmp_if_not" => ByteCode::PopJmpIfNot(*index),
                         _ => todo!()
                     }
                 } else {

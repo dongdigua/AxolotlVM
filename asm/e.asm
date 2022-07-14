@@ -6,10 +6,10 @@ push 1   ;; n!
 set 2
 
 get 0    <- decide
-push 20  ;; where to end
+push 21  ;; where to end, if higher, it will reach i64::MAX
 <
-pop_jump_if calc
-pop_jump_if_not end
+pop_jmp_if calc
+pop_jmp_if_not end
 
 pop      <- calc
 get 2
@@ -24,7 +24,7 @@ get 2
 get 1
 +
 set 1    ;; set sum back
-jump decide
+jmp decide
 
 pop      <- end
 pop      ;;clean up

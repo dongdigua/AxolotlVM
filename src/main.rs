@@ -16,10 +16,10 @@ fn prog(delay: u64, render: bool) {
         ByteCode::Push(Value::Int(1)),
         ByteCode::Push(Value::Int(5)),
         ByteCode::Greater,
-        ByteCode::PopJumpIfNot(5),
-        ByteCode::PopJumpIf(7),
+        ByteCode::PopJmpIfNot(5),
+        ByteCode::PopJmpIf(7),
         ByteCode::Dec,
-        ByteCode::Jump(2),
+        ByteCode::Jmp(2),
         ByteCode::HALT
     ];
 
@@ -117,14 +117,15 @@ fn main() {
             let content = fs::read_to_string(file).unwrap();
             let program = asm::compile_to_enum(content);
 
+            let output_filename = file.replace(".asm", ".abin");
             let mut bin_file = OpenOptions::new()
                 .create(true)
                 .write(true)
-                .open(file.to_owned() + ".abin")
+                .open(&output_filename)
                 .unwrap();
             
             bincode::encode_into_std_write(program, &mut bin_file, config).unwrap();
-            println!("bytecode: {}", file.to_owned() + ".abin");
+            println!("bytecode: {}", &output_filename);
         });
     }
 

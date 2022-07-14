@@ -5,15 +5,15 @@ push 1  ;; initial
 get 0
 push 1
 >
-pop_jump_if 9
-pop_jump_if_not 16
+pop_jmp_if 9
+pop_jmp_if_not 16
 pop
 --
 set 0
 copy -1
 copy -1
 +
-jump 4
+jmp 4
 pop
 pop
 HALT

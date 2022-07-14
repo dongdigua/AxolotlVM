@@ -2,7 +2,7 @@ push 1
 push 2
 +
 set 0
-jump 7
+jmp 7
 push 114514.1
 push 'a'
 push -10
