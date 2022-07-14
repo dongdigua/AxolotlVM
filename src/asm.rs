@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use regex::Regex;
 
 fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
-    let re_trim = Regex::new(r"\s+;;.+$").unwrap();
+    let re_trim = Regex::new(r"\s*;;.+$").unwrap();
     let re_empty = Regex::new(r"^\s*$").unwrap();
     let re_lable = Regex::new(r"\s+<- (.+)$").unwrap();
     
@@ -35,9 +35,9 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     let re_push_float = Regex::new(r"^push (\-?\d+.\d+)$").unwrap();
     let re_push_char = Regex::new(r"^push '(\w)'$").unwrap();
     let re_instr_usize =
-        Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|get|set) (\d+)$").unwrap();
+        Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|get|set|call) (\d+)$").unwrap();
     let re_copy = Regex::new(r"^copy -(\d+)$").unwrap();
-    let re_jmp = Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not) (.+)$").unwrap();
+    let re_instr_lable = Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|call) (.+)$").unwrap();
 
     let mut prog = vec![];
     let (processed, lable_pool) = pre_process(file_content);
@@ -48,6 +48,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
             "pop" => ByteCode::Pop,
             "dup" => ByteCode::Dup,
             "swap" => ByteCode::Swap,
+            "ret" => ByteCode::Ret,
             ">" => ByteCode::Greater,
             "<" => ByteCode::Less,
             ">=" => ByteCode::GreaterEq,
@@ -100,10 +101,11 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         "pop_jmp_if_not" => ByteCode::PopJmpIfNot(the_usize),
                         "get" => ByteCode::Get(the_usize),
                         "set" => ByteCode::Set(the_usize),
+                        "call" => ByteCode::Call(the_usize),
                         _ => panic!("[COMPILE]: Unknown instruction followed by usize")
                     }
-                } else if re_jmp.is_match(line) {
-                    let cap = re_jmp.captures(line).unwrap();
+                } else if re_instr_lable.is_match(line) {
+                    let cap = re_instr_lable.captures(line).unwrap();
                     let instruction = &cap[1];
                     let index = lable_pool.get(&cap[2]).unwrap();
 
@@ -111,6 +113,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         "jmp" => ByteCode::Jmp(*index),
                         "pop_jmp_if" => ByteCode::PopJmpIf(*index),
                         "pop_jmp_if_not" => ByteCode::PopJmpIfNot(*index),
+                        "call" => ByteCode::Call(*index),
                         _ => todo!()
                     }
                 } else {

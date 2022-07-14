@@ -17,7 +17,16 @@ fn test_add_two() {
     ];
 
     let machine = run_prog(program);
-    assert_eq!([Value::Int(2)], machine.stack[..])
+    assert_eq!([Value::Int(2)], machine.stack[..]);
+
+    /*
+    in the book:
+    需要注意的是，在一些语言和测试框架中，
+    断言两个值相等的函数的参数叫做 expected 和 actual，
+    而且指定参数的顺序是很关键的。
+    然而在 Rust 中，他们则叫做 left 和 right，
+    同时指定期望的值和被测试代码产生的值的顺序并不重要。
+     */
 }
 
 #[test]
@@ -31,7 +40,7 @@ fn test_logical() {
     ];
 
     let machine = run_prog(program);
-    assert_eq!([Value::Int(-7)], machine.stack[..])
+    assert_eq!([Value::Int(-7)], machine.stack[..]);
 }
 
 #[test]
@@ -43,7 +52,7 @@ fn test_different_type() {
         HALT
     ];
     let machine = run_prog(program);
-    assert_eq!([Value::Int(3)], machine.stack[..])
+    assert_eq!([Value::Int(3)], machine.stack[..]);
 }
 
 #[test]
@@ -55,7 +64,7 @@ fn test_jmp() {
         HALT
     ];
     let machine = run_prog(program);
-    assert_eq!([Value::Bool(true)], machine.stack[..])
+    assert_eq!([Value::Bool(true)], machine.stack[..]);
 }
 
 #[test]
@@ -71,7 +80,7 @@ fn test_conditional_jmp() {
         HALT
     ];
     let machine = run_prog(program);
-    assert_eq!([Value::Int(1), Value::Int(0)], machine.stack[..])
+    assert_eq!([Value::Int(1), Value::Int(0)], machine.stack[..]);
 }
 
 #[test]
@@ -84,3 +93,19 @@ fn stack_underflow() {
     ];
     run_prog(program);  
 }
+
+#[test]
+fn test_function_call() {
+    let program = vec![
+        Push(Value::Int(1)),
+        Call(3),
+        HALT,
+        Swap,    // where the function begins
+        Pop,
+        Ret,
+        HALT
+    ];
+    let machine = run_prog(program);
+    assert!(machine.stack.is_empty());
+}
+

@@ -82,7 +82,7 @@ impl VM {
                 },
                 ByteCode::Get(index) => self.stack.push(self.constant_pool[*index].clone()),
 
-                ByteCode::Jmp(pc) => self.pc = pc - 1,
+                ByteCode::Jmp(pc) => self.pc = pc - 1,  // because pc will increase at the end of loop
                 ByteCode::PopJmpIf(pc) => {
                     if *self.stack.last().unwrap() == Value::Bool(true) {
                         self.stack.pop();
@@ -94,6 +94,19 @@ impl VM {
                         self.stack.pop();
                         self.pc = pc - 1;
                     }
+                }
+
+                ByteCode::Call(pc) => {
+                    self.stack.push(Value::Int(self.pc as i64));
+                    self.pc = pc - 1;
+                }
+                ByteCode::Ret => {
+                    let addr = match self.pop() {
+                        Value::Int(n) => n as usize,
+                        _ => panic!("[RUNTIME]: Not a valid address type"),
+                    };
+                    self.pc = addr;
+                    // it should't - 1, otherwise will loop infinetly
                 }
 
                 // normally it should pop two and push one,
@@ -218,10 +231,11 @@ impl VM {
                     _ => (),
                 }
             }
+            write!(term, "\n").unwrap();
         } else {
             thread::sleep(time::Duration::from_millis(delay));
+            term.clear_line().unwrap();
+            term.clear_last_lines(1).unwrap();
         }
-        term.clear_line().unwrap();
-        term.clear_last_lines(1).unwrap();
     }
 }

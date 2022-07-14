@@ -101,7 +101,7 @@ fn main() {
             let now = Instant::now();
             let mut machine = VM::new(delay, render, debug);
             machine.run(&program);
-            
+
             let elapsed = now.elapsed();
             println!("elapsed: {:?}", elapsed);
             println!("{:?}", machine);
@@ -123,7 +123,7 @@ fn main() {
                 .write(true)
                 .open(&output_filename)
                 .unwrap();
-            
+
             bincode::encode_into_std_write(program, &mut bin_file, config).unwrap();
             println!("bytecode: {}", &output_filename);
         });

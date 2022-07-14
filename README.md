@@ -18,6 +18,5 @@ YouTube: [c serialization](https://youtu.be/QrKpqdBiFRI)<br>
 
 
 ## TODO
-- lambda/make function
 - syscall? native function(like tsoding day 4)
 
