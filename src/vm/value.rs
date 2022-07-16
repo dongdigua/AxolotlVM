@@ -4,7 +4,7 @@ use bincode::{Encode, Decode};
 #[derive(Copy, Clone, PartialEq, Encode, Decode)]
 pub enum Value {
     Int(i64),
-    Float(f32),
+    Float(f64),
     Char(u32),
     Bool(bool),
     Nil,
@@ -33,12 +33,12 @@ impl Value {
         }
     }
 
-    fn try_into_float(self) -> f32 {
+    fn try_into_float(self) -> f64 {
         match self {
             Value::Float(val) => val,
-            Value::Int(val) => val as f32,
-            Value::Char(val) => val as u8 as f32,
-            Value::Nil => 0f32,
+            Value::Int(val) => val as f64,
+            Value::Char(val) => val as u8 as f64,
+            Value::Nil => 0f64,
             _ => panic!("[VALUE]: Cannot convert Value::Bool to Value::Float"),
         }
     }
@@ -63,7 +63,7 @@ impl Value {
         &mut self,
         val: Value,
         func_int: &dyn Fn(i64, i64) -> i64,
-        func_float: &dyn Fn(f32, f32) -> f32,
+        func_float: &dyn Fn(f64, f64) -> f64,
         func_uint: &dyn Fn(u32, u32) -> u32,
     ) {
         match self {
@@ -78,7 +78,7 @@ impl Value {
         self.arithmetic(
             val,
             &|x: i64, y: i64| x + y,
-            &|x: f32, y: f32| x + y,
+            &|x: f64, y: f64| x + y,
             &|x: u32, y: u32| x + y,
         )
     }
@@ -87,16 +87,16 @@ impl Value {
         self.arithmetic(
             val,
             &|x: i64, y: i64| x - y,
-            &|x: f32, y: f32| x - y,
+            &|x: f64, y: f64| x - y,
             &|x: u32, y: u32| x - y,
         )
     }
-    
+
     pub fn mul(&mut self, val: Value) {
         self.arithmetic(
             val,
             &|x: i64, y: i64| x * y,
-            &|x: f32, y: f32| x * y,
+            &|x: f64, y: f64| x * y,
             &|x: u32, y: u32| x * y,
         )
     }
@@ -105,16 +105,16 @@ impl Value {
         self.arithmetic(
             val,
             &|x: i64, y: i64| x / y,
-            &|x: f32, y: f32| x / y,
+            &|x: f64, y: f64| x / y,
             &|x: u32, y: u32| x / y,
         )
     }
-    
+
     pub fn rem(&mut self, val: Value) {
         self.arithmetic(
             val,
             &|x: i64, y: i64| x % y,
-            &|x: f32, y: f32| x % y,
+            &|x: f64, y: f64| x % y,
             &|x: u32, y: u32| x % y,
         )
     }
@@ -127,7 +127,7 @@ impl Value {
             _ => panic!("[VALUE]: Wrong type for logical computing")
         }
     }
-    
+
     pub fn or(&mut self, val: Value) {
         match self {
             Value::Int(s) => *s = *s | val.try_into_int(),
@@ -136,7 +136,7 @@ impl Value {
             _ => panic!("[VALUE]: Wrong type for logical computing")
         }
     }
-    
+
     pub fn xor(&mut self, val: Value) {
         match self {
             Value::Int(s) => *s = *s ^ val.try_into_int(),

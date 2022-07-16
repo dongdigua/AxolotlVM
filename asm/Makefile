@@ -1,18 +1,10 @@
-ASM=cargo run -- asm
+ASSEMBLER=cargo run -- asm
+# ASM=$(basename *.asm)
 
-all: fib lable_fib e function_call
+all: e fib lable_fib factorial function_call
 
-fib:
-	$(ASM) fib.asm
-
-lable_fib:
-	$(ASM) lable_fib.asm
-
-e:
-	$(ASM) e.asm
-
-function_call:
-	$(ASM) function_call.asm
+%: %.asm
+	$(ASSEMBLER) $?
 
 clean:
 	rm *.abin

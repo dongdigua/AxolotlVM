@@ -12,7 +12,7 @@ fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
     let mut lable_pool = HashMap::new();
 
     for raw_line in file.lines() {
-        let line = &*re_trim.replace(raw_line, "");
+        let line = &re_trim.replace(raw_line, "");  // Cow<'t, str>
         if re_empty.is_match(line) {
             continue
         }
@@ -20,10 +20,10 @@ fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
         if re_lable.is_match(line) {
             let cap = re_lable.captures(line).unwrap();
             lable_pool.insert(cap[1].to_owned(), processed.len());
-            let line_trimed_lable = &*re_lable.replace(line, "");
-            processed.push(line_trimed_lable.to_owned());
+            let line_trimed_lable = re_lable.replace(line, "");
+            processed.push(line_trimed_lable.to_string());
         } else {
-            processed.push(line.to_owned());
+            processed.push(line.to_string());
         }
     }
     (processed, lable_pool)
@@ -77,7 +77,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                     ByteCode::Push(Value::Int(the_int))
                 } else if re_push_float.is_match(line) {
                     let cap = re_push_float.captures(line).unwrap();
-                    let the_float = cap[1].parse::<f32>().unwrap();
+                    let the_float = cap[1].parse::<f64>().unwrap();
 
                     ByteCode::Push(Value::Float(the_float))
                 } else if re_push_char.is_match(line) {
@@ -107,13 +107,13 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                 } else if re_instr_lable.is_match(line) {
                     let cap = re_instr_lable.captures(line).unwrap();
                     let instruction = &cap[1];
-                    let index = lable_pool.get(&cap[2]).unwrap();
+                    let index = *lable_pool.get(&cap[2]).unwrap();
 
                     match instruction {
-                        "jmp" => ByteCode::Jmp(*index),
-                        "pop_jmp_if" => ByteCode::PopJmpIf(*index),
-                        "pop_jmp_if_not" => ByteCode::PopJmpIfNot(*index),
-                        "call" => ByteCode::Call(*index),
+                        "jmp" => ByteCode::Jmp(index),
+                        "pop_jmp_if" => ByteCode::PopJmpIf(index),
+                        "pop_jmp_if_not" => ByteCode::PopJmpIfNot(index),
+                        "call" => ByteCode::Call(index),
                         _ => todo!()
                     }
                 } else {

@@ -21,3 +21,4 @@ get 0
 ret
 call function      <- main
 HALT
+
