@@ -41,5 +41,9 @@ pub enum ByteCode {
     Or,
     Not,
     Xor,
+
+    // for lisp
+    CollectList(usize),
+    CallTopFn,
 }
 

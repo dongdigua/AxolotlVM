@@ -57,13 +57,13 @@ impl VM {
                 ByteCode::Pop => {self.pop();}
                 ByteCode::Dup => {
                     let a = self.stack.last().unwrap();
-                    self.stack.push(*a);
+                    self.stack.push(a.clone());
                 }
                 ByteCode::Copy(relative_index) => {
                     // from tsoding live 1 fibonacci
                     // Copy(0) == Dup
-                    let val = self.stack[self.stack.len() - 1 - *relative_index];
-                    self.stack.push(val);
+                    let val = &self.stack[self.stack.len() - 1 - *relative_index];
+                    self.stack.push(val.clone());
                 }
                 ByteCode::Swap => {
                     let b = self.pop();
@@ -166,45 +166,45 @@ impl VM {
 
                 ByteCode::Greater => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(a.gt(*b)));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a.gt(b.clone())));
                 }
                 ByteCode::GreaterEq => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(! a.lt(*b)));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(! a.lt(b.clone())));
                 }
                 ByteCode::Less => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(a.lt(*b)));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a.lt(b.clone())));
                 }
                 ByteCode::LessEq => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(! a.gt(*b)));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(! a.gt(b.clone())));
                 }
                 ByteCode::Eq => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(a.eq(*b)));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(a.eq(b.clone())));
                 }
                 ByteCode::Neq => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(! a.eq(*b)));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(! a.eq(b.clone())));
                 }
                 ByteCode::Seq => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(a == *b));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(*a == b.clone()));
                 }
                 ByteCode::Sneq => {
                     let b = self.stack.last().unwrap();
-                    let a = self.stack[self.stack.len() - 2];
-                    self.stack.push(Value::Bool(a != *b));
+                    let a = &self.stack[self.stack.len() - 2];
+                    self.stack.push(Value::Bool(*a != b.clone()));
                 }
-                //_ => todo!("wtf!"),
+                _ => todo!("wtf!"),
             }
             if self.render {
                 self.render(byte, self.delay, self.debug, Term::stdout());

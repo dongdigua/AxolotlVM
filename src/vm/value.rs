@@ -1,12 +1,14 @@
 use std::fmt::{Debug, Formatter};
 use bincode::{Encode, Decode};
+use crate::vm::object::ObjRef;
 
-#[derive(Copy, Clone, PartialEq, Encode, Decode)]
+#[derive(Clone, PartialEq, Encode, Decode)]
 pub enum Value {
     Int(i64),
     Float(f64),
     Char(u32),
     Bool(bool),
+    Ref(ObjRef),
     Nil,
 }
 
@@ -17,6 +19,7 @@ impl Debug for Value {
             Value::Float(i) => write!(f, "{:.5}", i),
             Value::Char(i) => write!(f, "'{}'", unsafe { std::char::from_u32_unchecked(*i) }),
             Value::Bool(i) => write!(f, "{}", i),
+            Value::Ref(rf) => todo!("{:?}", rf),
             Value::Nil => write!(f, "nil"),
         }
     }
@@ -155,29 +158,29 @@ impl Value {
         }
     }
 
-    pub fn gt(self, val: Value) -> bool {
+    pub fn gt(&self, val: Value) -> bool {
         match self {
-            Value::Int(s) => s > val.try_into_int(),
-            Value::Float(s) => s > val.try_into_float(),
-            Value::Char(s) => s > val.try_into_char(),
+            Value::Int(s) => *s > val.try_into_int(),
+            Value::Float(s) => *s > val.try_into_float(),
+            Value::Char(s) => *s > val.try_into_char(),
             _ => panic!("[VALUE]: Wrong type for comparation")
         }
     }
 
-    pub fn lt(self, val: Value) -> bool {
+    pub fn lt(&self, val: Value) -> bool {
         match self {
-            Value::Int(s) => s < val.try_into_int(),
-            Value::Float(s) => s < val.try_into_float(),
-            Value::Char(s) => s < val.try_into_char(),
+            Value::Int(s) => *s < val.try_into_int(),
+            Value::Float(s) => *s < val.try_into_float(),
+            Value::Char(s) => *s < val.try_into_char(),
             _ => panic!("[VALUE]: Wrong type for comparation")
         }
     }
 
-    pub fn eq(self, val: Value) -> bool {
+    pub fn eq(&self, val: Value) -> bool {
         match self {
-            Value::Int(s) => s == val.try_into_int(),
-            Value::Float(s) => s == val.try_into_float(),
-            Value::Char(s) => s == val.try_into_char(),
+            Value::Int(s) => *s == val.try_into_int(),
+            Value::Float(s) => *s == val.try_into_float(),
+            Value::Char(s) => *s == val.try_into_char(),
             _ => panic!("[VALUE]: Wrong type for comparation")
         }
     }
