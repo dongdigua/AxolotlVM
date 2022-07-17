@@ -1,6 +1,7 @@
+use std::rc::Rc;
 use std::fmt::{Debug, Formatter};
 use bincode::{Encode, Decode};
-use crate::vm::object::ObjRef;
+use crate::vm::object::ObjType;
 
 #[derive(Clone, PartialEq, Encode, Decode)]
 pub enum Value {
@@ -8,7 +9,7 @@ pub enum Value {
     Float(f64),
     Char(u32),
     Bool(bool),
-    Ref(ObjRef),
+    Ref(Rc<ObjType>),
     Nil,
 }
 

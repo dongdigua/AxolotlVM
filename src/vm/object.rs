@@ -1,8 +1,13 @@
-use std::rc::Rc;
 use bincode::{Encode, Decode};
+use crate::vm::value::Value;
+use crate::builtin::linkedlist::List;
 
-#[derive (Clone, PartialEq, Encode, Decode, Debug)]
-pub struct ObjRef {
-    obj: Rc<i32>
+// it seems bincode cannot encode/decode Linkedlist
+// so maybe I should implment a Linkedlist myself
+// https://course.rs/too-many-lists/intro.html
+#[derive(Clone, PartialEq, Encode, Decode, Debug)]
+pub enum ObjType {
+    Cons(List<Value>),
+    Func,
+    String(String),
 }
-
