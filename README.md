@@ -4,6 +4,14 @@
 because it's cute,<br>
 and MC 1.17 is the last version with world hight 256
 
+## usage
+```shell
+axolotl asm <ASSEMBLY_FILE>
+axolotl -t <DELAY> run [--no-render] [--debug] <VM_BINARY>
+```
+
+
+
 ## references
 [GloomScript](https://github.com/Xie-Jason/GloomScript)
     梦开始的地方<br>
@@ -22,5 +30,5 @@ YouTube: [c serialization](https://youtu.be/QrKpqdBiFRI)<br>
 
 ## TODO
 - syscall? native function(like tsoding day 4)
-- linked list(cons), λ
+- λ
 

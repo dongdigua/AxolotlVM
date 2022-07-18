@@ -1,23 +1,12 @@
-;; this an example of function call
-;; pass in (a=1, b=2, c=3)
-;; then calculate b (a c +) /
-
-;; 1
-;; 2
-;; 3
-
-push 3
-push 2
 push 1
+push 2
+push 3
 jmp main
-set 0              <- function
-copy -2
-+
+copy -3           <- function
+copy -3
+copy -3
+collect_list 3
 swap
-/
-swap
-pop
-get 0
 ret
 call function      <- main
 HALT

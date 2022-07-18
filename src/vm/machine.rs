@@ -1,7 +1,11 @@
 use crate::vm::bytecode::ByteCode;
 use crate::vm::value::Value;
+use crate::vm::object::ObjType;
+use crate::builtin::linkedlist::List;
+
 use std::{thread, time};
 use std::io::Write;
+use std::rc::Rc;
 use console::{Term, Key};
 
 
@@ -203,6 +207,16 @@ impl VM {
                     let b = self.stack.last().unwrap();
                     let a = &self.stack[self.stack.len() - 2];
                     self.stack.push(Value::Bool(*a != b.clone()));
+                }
+
+                ByteCode::CollectList(n) => {
+                    let mut list = List::new();
+                    // stack(-> top): 1 2 3 4 5
+                    // list: 1 2 3 4 5
+                    for _i in 1..=*n {
+                        list = list.prepend(self.pop());
+                    }
+                    self.stack.push(Value::Ref(Rc::new(ObjType::Cons(list))));
                 }
                 _ => todo!("wtf!"),
             }

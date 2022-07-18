@@ -35,7 +35,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
     let re_push_float = Regex::new(r"^push (\-?\d+.\d+)$").unwrap();
     let re_push_char = Regex::new(r"^push '(\w)'$").unwrap();
     let re_instr_usize =
-        Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|get|set|call) (\d+)$").unwrap();
+        Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|get|set|call|collect_list) (\d+)$").unwrap();
     let re_copy = Regex::new(r"^copy -(\d+)$").unwrap();
     let re_instr_lable = Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|call) (.+)$").unwrap();
 
@@ -102,6 +102,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         "get" => ByteCode::Get(the_usize),
                         "set" => ByteCode::Set(the_usize),
                         "call" => ByteCode::Call(the_usize),
+                        "collect_list" => ByteCode::CollectList(the_usize),
                         _ => panic!("[COMPILE]: Unknown instruction followed by usize")
                     }
                 } else if re_instr_lable.is_match(line) {

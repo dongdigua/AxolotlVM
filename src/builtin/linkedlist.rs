@@ -1,9 +1,10 @@
 // singly linked list
 use bincode::{Encode, Decode};
 use std::rc::Rc;
+use std::fmt::{Debug, Formatter};
 
 // from cource.rs
-#[derive (Clone, Encode, Decode, Debug, PartialEq)]
+#[derive (Clone, Encode, Decode, PartialEq)]
 pub struct List<T> {
     head: Link<T>,
 }
@@ -16,6 +17,23 @@ struct Node<T> {
     next: Link<T>,
 }
 
+impl<T: std::fmt::Debug> Debug for List<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        fn rec_fmt<F: std::fmt::Debug>(list: &List<F>, f: &mut Formatter<'_>) -> std::fmt::Result {
+            match list.head() {
+                None => write!(f, "end"),
+                Some(x) => {
+                    write!(f, "{:?}, ", x)?;
+                    rec_fmt(&list.tail(), f)
+                }
+            }
+        }
+        write!(f, "[")?;
+        rec_fmt(self, f)?;
+        write!(f, "]")
+    }
+
+}
 impl<T> Drop for List<T> {
     fn drop(&mut self) {
         // take: Takes the value out of the option, leaving a None in its place.

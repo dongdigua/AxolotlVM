@@ -20,7 +20,7 @@ impl Debug for Value {
             Value::Float(i) => write!(f, "{:.5}", i),
             Value::Char(i) => write!(f, "'{}'", unsafe { std::char::from_u32_unchecked(*i) }),
             Value::Bool(i) => write!(f, "{}", i),
-            Value::Ref(rf) => todo!("{:?}", rf),
+            Value::Ref(rf) => write!(f, "{:?}", rf),
             Value::Nil => write!(f, "nil"),
         }
     }

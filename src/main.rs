@@ -14,12 +14,9 @@ use bincode;
 fn prog(delay: u64, render: bool) {
     let program: Vec<ByteCode> = vec![
         ByteCode::Push(Value::Int(1)),
-        ByteCode::Push(Value::Int(5)),
-        ByteCode::Greater,
-        ByteCode::PopJmpIfNot(5),
-        ByteCode::PopJmpIf(7),
-        ByteCode::Dec,
-        ByteCode::Jmp(2),
+        ByteCode::Push(Value::Int(2)),
+        ByteCode::Push(Value::Int(3)),
+        ByteCode::CollectList(3),
         ByteCode::HALT
     ];
 
