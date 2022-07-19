@@ -1,8 +1,9 @@
 use regex::{Regex, Captures};
+use crate::frontend::token::{self, Token};
 
 #[derive (Clone, PartialEq, Debug)]
 pub enum Parsed {
-    Str(String),
+    Token(Token),
     List(Vec<Parsed>),
 }
 
@@ -51,7 +52,9 @@ pub fn parse(input: &String) -> Result<Parsed, ParseError> {
                 nlist.push(Parsed::List(list));        // 当前的 list 作为值存入
                 list = nlist;
             }
-            s => list.push(Parsed::Str(s.to_string())),
+            s => list.push(Parsed::Token(
+                token::tokenlize(s.to_string())
+            )),
         }
     };
 
@@ -67,7 +70,7 @@ mod tests {
     #[test]
     fn test_parse_str() {
         let input = "123".to_string();
-        assert_eq!(Str("123".to_string()), parse(&input));
+        assert_eq!(Str("123".to_string()), parse(&input).unwrap());
     }
 
     #[test]
@@ -79,9 +82,16 @@ mod tests {
                      vec![Str("+".to_string()), Str("2".to_string()), Str("3".to_string())]
                  )
             ]
-        ), parse(&input));
+        ), parse(&input).unwrap());
     }
 
+    #[test]
+    fn print_parse() {
+        let input = r#"
+("aaaa")
+"#.to_string();
+        println!("{:?}", parse(&input).unwrap());
+    }
 
 
 }
