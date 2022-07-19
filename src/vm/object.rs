@@ -10,7 +10,7 @@ use std::fmt::{Debug, Formatter};
 pub enum ObjType {
     Cons(List<Value>),
     Func,
-    String(String),
+    Str(String),
 }
 
 impl Debug for ObjType {
@@ -18,7 +18,7 @@ impl Debug for ObjType {
         match self {
             ObjType::Cons(l) => write!(f, "{:?}", l),
             ObjType::Func => todo!(),
-            ObjType::String(s) => write!(f, "{:?}", s),
+            ObjType::Str(s) => write!(f, "{:?}", s),
         }
     }
 }

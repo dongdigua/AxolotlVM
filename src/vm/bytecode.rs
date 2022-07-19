@@ -44,6 +44,7 @@ pub enum ByteCode {
 
     // for lisp
     CollectList(usize),
+    CollectCharList(usize),
     CallTopFn,
 }
 

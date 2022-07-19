@@ -1,6 +1,9 @@
 use crate::vm::bytecode::ByteCode;
 use crate::vm::value::Value;
+use crate::vm::object::ObjType;
+
 use std::collections::HashMap;
+use std::rc::Rc;
 use regex::Regex;
 
 fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
@@ -31,9 +34,11 @@ fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
 
 
 pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
-    let re_push_int = Regex::new(r"^push (\-?\d+)$").unwrap();
+    let re_push_int   = Regex::new(r"^push (\-?\d+)$").unwrap();
     let re_push_float = Regex::new(r"^push (\-?\d+.\d+)$").unwrap();
-    let re_push_char = Regex::new(r"^push '(\w)'$").unwrap();
+    let re_push_char  = Regex::new(r"^push '(\w)'$").unwrap();
+    let re_push_str   = Regex::new(r#"^push "(.+)"$"#).unwrap();
+
     let re_instr_usize =
         Regex::new(r"^(jmp|pop_jmp_if|pop_jmp_if_not|get|set|call|collect_list) (\d+)$").unwrap();
     let re_copy = Regex::new(r"^copy -(\d+)$").unwrap();
@@ -45,29 +50,29 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
         let line = &line[..];
         let current_code = match line {
             "HALT" => ByteCode::HALT,
-            "pop" => ByteCode::Pop,
-            "dup" => ByteCode::Dup,
+            "pop"  => ByteCode::Pop,
+            "dup"  => ByteCode::Dup,
             "swap" => ByteCode::Swap,
-            "ret" => ByteCode::Ret,
-            ">" => ByteCode::Greater,
-            "<" => ByteCode::Less,
-            ">=" => ByteCode::GreaterEq,
-            "<=" => ByteCode::LessEq,
-            "==" => ByteCode::Eq,
-            "!=" => ByteCode::Neq,
-            "===" => ByteCode::Seq,
-            "!==" => ByteCode::Sneq,
-            "+" => ByteCode::Add,
-            "-" => ByteCode::Sub,
-            "*" => ByteCode::Mul,
-            "/" => ByteCode::Div,
-            "%" => ByteCode::Rem,
-            "++" => ByteCode::Inc,
-            "--" => ByteCode::Dec,
-            "&" => ByteCode::And,
-            "|" => ByteCode::Or,
-            "!" => ByteCode::Not,
-            "^" => ByteCode::Xor,
+            "ret"  => ByteCode::Ret,
+            ">"    => ByteCode::Greater,
+            "<"    => ByteCode::Less,
+            ">="   => ByteCode::GreaterEq,
+            "<="   => ByteCode::LessEq,
+            "=="   => ByteCode::Eq,
+            "!="   => ByteCode::Neq,
+            "==="  => ByteCode::Seq,
+            "!=="  => ByteCode::Sneq,
+            "+"    => ByteCode::Add,
+            "-"    => ByteCode::Sub,
+            "*"    => ByteCode::Mul,
+            "/"    => ByteCode::Div,
+            "%"    => ByteCode::Rem,
+            "++"   => ByteCode::Inc,
+            "--"   => ByteCode::Dec,
+            "&"    => ByteCode::And,
+            "|"    => ByteCode::Or,
+            "!"    => ByteCode::Not,
+            "^"    => ByteCode::Xor,
             _ => {
                 if re_push_int.is_match(line) {
                     let cap = re_push_int.captures(line).unwrap();
@@ -85,6 +90,11 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                     let the_char = cap[1].chars().collect::<Vec<_>>()[0];
 
                     ByteCode::Push(Value::Char(the_char as u32))
+                } else if re_push_str.is_match(line) {
+                    let cap = re_push_str.captures(line).unwrap();
+                    let the_string = cap[1].to_string();
+
+                    ByteCode::Push(Value::Ref(Rc::new(ObjType::Str(the_string))))
                 } else if re_copy.is_match(line) {
                     let cap = re_copy.captures(line).unwrap();
                     let the_usize = cap[1].parse::<usize>().unwrap();
@@ -96,14 +106,14 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                     let the_usize = cap[2].parse::<usize>().unwrap();
 
                     match instruction {
-                        "jmp" => ByteCode::Jmp(the_usize),
-                        "pop_jmp_if" => ByteCode::PopJmpIf(the_usize),
+                        "jmp"            => ByteCode::Jmp(the_usize),
+                        "pop_jmp_if"     => ByteCode::PopJmpIf(the_usize),
                         "pop_jmp_if_not" => ByteCode::PopJmpIfNot(the_usize),
-                        "get" => ByteCode::Get(the_usize),
-                        "set" => ByteCode::Set(the_usize),
-                        "call" => ByteCode::Call(the_usize),
-                        "collect_list" => ByteCode::CollectList(the_usize),
-                        _ => panic!("[COMPILE]: Unknown instruction followed by usize")
+                        "get"            => ByteCode::Get(the_usize),
+                        "set"            => ByteCode::Set(the_usize),
+                        "call"           => ByteCode::Call(the_usize),
+                        "collect_list"   => ByteCode::CollectList(the_usize),
+                        _                => panic!("[COMPILE]: Unknown instruction followed by usize")
                     }
                 } else if re_instr_lable.is_match(line) {
                     let cap = re_instr_lable.captures(line).unwrap();
@@ -111,11 +121,11 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                     let index = *lable_pool.get(&cap[2]).unwrap();
 
                     match instruction {
-                        "jmp" => ByteCode::Jmp(index),
-                        "pop_jmp_if" => ByteCode::PopJmpIf(index),
+                        "jmp"            => ByteCode::Jmp(index),
+                        "pop_jmp_if"     => ByteCode::PopJmpIf(index),
                         "pop_jmp_if_not" => ByteCode::PopJmpIfNot(index),
-                        "call" => ByteCode::Call(index),
-                        _ => todo!()
+                        "call"           => ByteCode::Call(index),
+                        _                => todo!()
                     }
                 } else {
                     panic!("[COMPILE]: Unknown instruction {}\n{:?}", line, lable_pool)

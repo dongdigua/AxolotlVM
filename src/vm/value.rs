@@ -63,6 +63,7 @@ impl Value {
         }
     }
 
+    #[inline (always)]
     fn arithmetic(
         &mut self,
         val: Value,
@@ -78,6 +79,7 @@ impl Value {
         }
     }
 
+    #[inline (always)]
     pub fn add(&mut self, val: Value) {
         self.arithmetic(
             val,
@@ -87,6 +89,7 @@ impl Value {
         )
     }
 
+    #[inline (always)]
     pub fn sub(&mut self, val: Value) {
         self.arithmetic(
             val,
@@ -96,6 +99,7 @@ impl Value {
         )
     }
 
+    #[inline (always)]
     pub fn mul(&mut self, val: Value) {
         self.arithmetic(
             val,
@@ -105,6 +109,7 @@ impl Value {
         )
     }
 
+    #[inline (always)]
     pub fn div(&mut self, val: Value) {
         self.arithmetic(
             val,
@@ -114,6 +119,7 @@ impl Value {
         )
     }
 
+    #[inline (always)]
     pub fn rem(&mut self, val: Value) {
         self.arithmetic(
             val,

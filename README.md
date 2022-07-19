@@ -21,6 +21,11 @@ axolotl -t <DELAY> run [--no-render] [--debug] <VM_BINARY>
     two tutorial, and my notes on tsoding's bm<br>
 [rustyline](https://crates.io/crates/rustyline)
     repl<br>
+[rust-lisp](https://github.com/sunxyz/rust-lisp)<br>
+[mal make-a-lisp](https://github.com/kanaka/mal/)
+    too many languages<br>
+[SO: regex multiple capture](https://stackoverflow.com/questions/57497045/how-to-get-overlapping-regex-captures-in-rust)<br>
+
 ### serialization
 [bincode](https://github.com/bincode-org/bincode)<br>
 I don't quite understand [on SO](https://stackoverflow.com/questions/25410028/how-to-read-a-struct-from-a-file-in-rust)<br>
