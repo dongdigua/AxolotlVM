@@ -4,6 +4,7 @@ use axolotl::vm::machine::VM;
 use axolotl::vm::bytecode::ByteCode;
 use axolotl::vm::value::Value;
 use axolotl::asm;
+use axolotl::frontend::repl;
 
 use std::fs::{self, OpenOptions, File};
 use std::time::Instant;
@@ -37,39 +38,45 @@ fn main() {
              .value_name("DELAY")
              .takes_value(true)
              .help("The delay of each cycle"))
-        .arg(Arg::new("no-render")
-             .required(false)
-             .long("no-render")
-             .action(clap::ArgAction::SetTrue)
-             .help("Render or not"))
+
         .subcommand(App::new("run")
                     .about("Run VM bytecode.")
                     .arg(Arg::new("BIN")
                          .help("assembly file")
                          .required(true))
+                    .arg(Arg::new("no-render")
+                         .required(false)
+                         .long("no-render")
+                         .action(clap::ArgAction::SetTrue)
+                         .help("Render or not"))
                     .arg(Arg::new("debug")
                          .required(false)
                          .short('d')
                          .long("debug")
                          .action(clap::ArgAction::SetTrue)
                          .help("stepping debug or not")))
+
         .subcommand(App::new("asm")
                     .about("Compile the asm file to binary.")
                     .arg(Arg::new("ASM")
                          .help("assembly file")
                          .required(true)))
+
         .subcommand(App::new("com")
                     .about("Compile the source file to binary.")
                     .arg(Arg::new("SOURCE")
                          .help("source file")
                          .required(true)))
+
+        .subcommand(App::new("repl")
+                    .about("Launch a LISP repl."))
+
         .get_matches();
 
     let delay = matches.value_of("delay")
         .unwrap_or("0")
         .parse::<u64>()
         .unwrap();
-    let render = ! matches.get_one::<bool>("no-render").unwrap();
 
     let mut status = true;
     // stolen from GloomScript
@@ -83,6 +90,7 @@ fn main() {
         matches.subcommand_matches("run").map(|m| {
             status = false;
 
+            let render = ! m.get_one::<bool>("no-render").unwrap();
             let debug = if render {
                 *m.get_one::<bool>("debug").unwrap()
             } else {
@@ -135,6 +143,13 @@ fn main() {
     }
 
     if status {
-        prog(delay, render);
+        matches.subcommand_matches("repl").map(|m| {
+            status = false;
+            repl::repl();
+        });
+    }
+
+    if status {
+        prog(delay, true);
     }
 }

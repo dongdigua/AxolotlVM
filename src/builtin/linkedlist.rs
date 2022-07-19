@@ -11,7 +11,7 @@ pub struct List<T> {
 
 type Link<T> = Option<Rc<Node<T>>>;
 
-#[derive (Encode, Decode, Debug, PartialEq)]
+#[derive (Encode, Decode, PartialEq)]
 struct Node<T> {
     elem: T,
     next: Link<T>,

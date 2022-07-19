@@ -26,6 +26,9 @@ impl Debug for Value {
     }
 }
 
+const LOGICAL_WRONG_TYPE: &'static str = "[VALUE]: Wrong type for logical computing";
+const COMPARE_WRONG_TYPE: &'static str = "[VALUE]: Wrong type for comparation";
+
 impl Value {
     fn try_into_int(self) -> i64 {
         match self {
@@ -134,7 +137,7 @@ impl Value {
             Value::Int(s) => *s = *s & val.try_into_int(),
             Value::Bool(s) => *s = *s & val.try_into_bool(),
             Value::Char(s) => *s = *s & val.try_into_char(),
-            _ => panic!("[VALUE]: Wrong type for logical computing")
+            _ => panic!("{}", LOGICAL_WRONG_TYPE)
         }
     }
 
@@ -143,7 +146,7 @@ impl Value {
             Value::Int(s) => *s = *s | val.try_into_int(),
             Value::Bool(s) => *s = *s | val.try_into_bool(),
             Value::Char(s) => *s = *s | val.try_into_char(),
-            _ => panic!("[VALUE]: Wrong type for logical computing")
+            _ => panic!("{}", LOGICAL_WRONG_TYPE)
         }
     }
 
@@ -152,7 +155,7 @@ impl Value {
             Value::Int(s) => *s = *s ^ val.try_into_int(),
             Value::Bool(s) => *s = *s ^ val.try_into_bool(),
             Value::Char(s) => *s = *s ^ val.try_into_char(),
-            _ => panic!("[VALUE]: Wrong type for logical computing")
+            _ => panic!("{}", LOGICAL_WRONG_TYPE)
         }
     }
 
@@ -161,7 +164,7 @@ impl Value {
             Value::Int(s) => *s = ! *s,
             Value::Bool(s) => *s = ! *s,
             Value::Char(s) => *s = ! *s,
-            _ => panic!("[VALUE]: Wrong type for logical computing")
+            _ => panic!("{}", LOGICAL_WRONG_TYPE)
         }
     }
 
@@ -170,7 +173,7 @@ impl Value {
             Value::Int(s) => *s > val.try_into_int(),
             Value::Float(s) => *s > val.try_into_float(),
             Value::Char(s) => *s > val.try_into_char(),
-            _ => panic!("[VALUE]: Wrong type for comparation")
+            _ => panic!("{}", COMPARE_WRONG_TYPE)
         }
     }
 
@@ -179,7 +182,7 @@ impl Value {
             Value::Int(s) => *s < val.try_into_int(),
             Value::Float(s) => *s < val.try_into_float(),
             Value::Char(s) => *s < val.try_into_char(),
-            _ => panic!("[VALUE]: Wrong type for comparation")
+            _ => panic!("{}", COMPARE_WRONG_TYPE)
         }
     }
 
@@ -188,7 +191,7 @@ impl Value {
             Value::Int(s) => *s == val.try_into_int(),
             Value::Float(s) => *s == val.try_into_float(),
             Value::Char(s) => *s == val.try_into_char(),
-            _ => panic!("[VALUE]: Wrong type for comparation")
+            _ => panic!("{}", COMPARE_WRONG_TYPE)
         }
     }
 }

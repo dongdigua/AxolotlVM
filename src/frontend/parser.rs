@@ -6,13 +6,31 @@ pub enum Parsed {
     List(Vec<Parsed>),
 }
 
-pub fn parse(input: &String) -> Parsed {
+#[derive (Debug)]
+pub enum ParseError {
+    MisMatchedBracket,  // or MisMatchedParentheses
+    InvalidCharacter,
+}
+
+
+pub fn parse(input: &String) -> Result<Parsed, ParseError> {
     // from github.com/kanaka/mal/blob/master/process/guide.md#step-2-eval
     let re_parse =
         Regex::new(r#"[\s,]*([\[\]{}()']|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)"#).unwrap();
     let caps: Vec<Captures> = re_parse.captures_iter(input).collect();
 
-    println!("{:?}", caps);
+    let mut brackets = (0, 0);
+    for c in &caps {
+        match &c[1] {
+            "(" => brackets.0 += 1,
+            ")" => brackets.1 += 1,
+            _ => (),
+        }
+    }
+    if brackets.0 != brackets.1 {
+        return Err(ParseError::MisMatchedBracket)
+    }
+
     // zhihu: zhuanlan.zhihu.com/p/260157026
     // 一个 List 没完成时，又有新的 List 要开始，旧的 List 用一个栈保存起来
     let mut stack = vec![];
@@ -25,14 +43,19 @@ pub fn parse(input: &String) -> Parsed {
                 list = vec![];
             }
             ")" => {
-                let mut nlist = stack.pop().unwrap();  // 将上一个 list 出栈
+                let mut nlist =  // 将上一个 list 出栈
+                    match stack.pop() {
+                        Some(nl) => nl,
+                        None => return Err(ParseError::MisMatchedBracket),
+                    };
                 nlist.push(Parsed::List(list));        // 当前的 list 作为值存入
                 list = nlist;
             }
             s => list.push(Parsed::Str(s.to_string())),
         }
     };
-    list[0].clone()
+
+    Ok(list[0].clone())
 }
 
 

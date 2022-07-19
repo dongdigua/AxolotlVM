@@ -10,7 +10,7 @@ fn pre_process(file: String) -> (Vec<String>, HashMap<String, usize>) {
     let re_trim = Regex::new(r"\s*;;.+$").unwrap();
     let re_empty = Regex::new(r"^\s*$").unwrap();
     let re_lable = Regex::new(r"\s+<- (.+)$").unwrap();
-    
+
     let mut processed = vec![];
     let mut lable_pool = HashMap::new();
 
@@ -113,7 +113,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         "set"            => ByteCode::Set(the_usize),
                         "call"           => ByteCode::Call(the_usize),
                         "collect_list"   => ByteCode::CollectList(the_usize),
-                        _                => panic!("[COMPILE]: Unknown instruction followed by usize")
+                        _                => panic!("[ASM]: Unknown instruction followed by usize")
                     }
                 } else if re_instr_lable.is_match(line) {
                     let cap = re_instr_lable.captures(line).unwrap();
@@ -128,7 +128,7 @@ pub fn compile_to_enum(file_content: String) -> Vec<ByteCode> {
                         _                => todo!()
                     }
                 } else {
-                    panic!("[COMPILE]: Unknown instruction {}\n{:?}", line, lable_pool)
+                    panic!("[ASM]: Unknown instruction {}\n{:?}", line, lable_pool)
                 }
             }
         };
