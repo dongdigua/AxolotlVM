@@ -11,4 +11,4 @@ clap = "3.2"
 regex = "1.6"
 bincode = "2.0.0-rc.1"
 # rustyline = "10"
-dialoguer = "0.10"
+dialoguer = {version = "0.10.1", features = ["history"]}
