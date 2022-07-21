@@ -1,8 +1,13 @@
 use dialoguer::{Input, History};
 use crate::frontend::parser;
+use crate::frontend::gen::GenEnv;
+use crate::vm::machine::VM;
 use std::collections::VecDeque;
 
 pub fn repl() {
+    let mut env = GenEnv::new();
+    let mut vm = VM::new(100, true, false);
+
     let mut counter = 0;
     let mut history = ReplHistory::new();
     loop {
@@ -14,10 +19,16 @@ pub fn repl() {
 
         match parser::parse(&input) {
             Ok(parsed) => {
-                println!("{:?}", parsed);
+                match env.generate_with_halt(&parsed) {
+                    Ok(code) => {
+                        vm.run(&code);
+                        println!("{:?}", vm.stack.last().unwrap())
+                    }
+                    Err(err) => println!("[CODEGEN]: {:?}", err)
+                }
                 counter += 1;
             }
-            Err(err)   => println!("[PARSER]: {:?}", err),
+            Err(err) => println!("[PARSER]: {:?}", err),
         }
     }
 }

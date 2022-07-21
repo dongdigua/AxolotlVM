@@ -36,4 +36,7 @@ YouTube: [c serialization](https://youtu.be/QrKpqdBiFRI)<br>
 ## TODO
 - syscall? native function(like tsoding day 4)
 - λ
+- start a VM with given stack and program
+- config the VM on debug, instead of using new
+
 
