@@ -17,6 +17,7 @@ pub enum CodeGenError {
 
 // normally last() should't return None, this message is for me when I forgot what's wrong
 const STACK_LAST_ERROR: &'static str = "[CODEGEN]: Env scope stack error";
+const SHOULDNOT_REACH:     &'static str = "[CODEGEN]: Reached unexpected feild";
 
 #[derive (Debug)]
 pub struct GenEnv {
@@ -33,7 +34,7 @@ impl GenEnv {
     }
 
     pub fn generate_with_halt(&mut self, expr: &Parsed) -> Result<Vec<ByteCode>, CodeGenError> {
-        println!("{:?}", &expr);
+        //println!("{:?}", &expr);
         match self.generate(expr) {
             Ok(mut code) => {
                 code.push(ByteCode::HALT);
@@ -60,10 +61,11 @@ impl GenEnv {
                             None => Err(CodeGenError::SymbolNotFound),
                         }
                     },
-                    Token::Int(i)  => Ok(vec![ByteCode::Push(Value::Int(*i))]),
-                    Token::Float(f)  => Ok(vec![ByteCode::Push(Value::Float(*f))]),
+                    Token::Bool(b)  => Ok(vec![ByteCode::Push(Value::Bool(*b))]),
+                    Token::Int(i)   => Ok(vec![ByteCode::Push(Value::Int(*i))]),
+                    Token::Float(f) => Ok(vec![ByteCode::Push(Value::Float(*f))]),
                     Token::Char(c)  => Ok(vec![ByteCode::Push(Value::Char(*c))]),
-                    Token::Str(s)  => Ok(vec![ByteCode::Push(
+                    Token::Str(s)   => Ok(vec![ByteCode::Push(
                         Value::Ref(
                             Rc::new(ObjType::Str(s.to_string()))
                         )
@@ -73,7 +75,7 @@ impl GenEnv {
             },
             Parsed::List(list) => {
                 match list.len() - 1 {
-                    0 => todo!(),
+                    0 => todo!("call a funtcion"),
                     1 => self.single_arg(&expr),
                     2 => self.double_arg(&expr),
                     3 => todo!(),
@@ -89,7 +91,7 @@ impl GenEnv {
     }
 
     fn double_arg(&mut self, list: &Parsed) -> Result<Vec<ByteCode>, CodeGenError> {
-        let expr = if let Parsed::List(expr) = list {expr} else {todo!("should'n be this")};
+        let expr = if let Parsed::List(expr) = list { expr } else { todo!("{}", SHOULDNOT_REACH) };
         match expr[0] {
             Parsed::Token(Token::Define) => {
                 if let Parsed::Token(Token::Sym(sym)) = &expr[1] {
@@ -114,8 +116,55 @@ impl GenEnv {
                     Err(CodeGenError::ArgTypeError)
                 }
             }
+
+            // arithmetic operation
+            Parsed::Token(Token::Add | Token::Sub | Token::Mul | Token:: Div | Token::Rem) => {
+                match (&expr[1], &expr[2]) {
+                    (Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_)),
+                     Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_))) => {
+                        let token = if let Parsed::Token(token) = &expr[0] { token } else { todo!("{}", SHOULDNOT_REACH) };
+                        let operator = match token {
+                            Token::Add => ByteCode::Add,
+                            Token::Sub => ByteCode::Sub,
+                            Token::Mul => ByteCode::Mul,
+                            Token::Div => ByteCode::Div,
+                            Token::Rem => ByteCode::Rem,
+                            _ => todo!("{}", SHOULDNOT_REACH)
+                        };
+                        let mut res = vec![];
+                        res.append(&mut self.generate(&expr[1])?);
+                        res.append(&mut self.generate(&expr[2])?);
+                        res.push(operator);
+                        Ok(res)
+                    }
+                    _ => Err(CodeGenError::ArgTypeError)
+                }
+            }
+
+            // logical operation
+            Parsed::Token(Token::And | Token::Or | Token::Xor) => {
+                match (&expr[1], &expr[2]) {
+                    (Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_)),
+                     Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_))) => {
+                        let token = if let Parsed::Token(token) = &expr[0] { token } else { todo!("{}", SHOULDNOT_REACH) };
+                        let operator = match token {
+                            Token::And => ByteCode::And,
+                            Token::Or  => ByteCode::Or,
+                            Token::Xor => ByteCode::Xor,
+                            _ => todo!("{}", SHOULDNOT_REACH)
+                        };
+                        let mut res = vec![];
+                        res.append(&mut self.generate(&expr[1])?);
+                        res.append(&mut self.generate(&expr[2])?);
+                        res.push(operator);
+                        Ok(res)
+                    }
+                    _ => Err(CodeGenError::ArgTypeError)
+                }
+            }
             _ => Err(CodeGenError::IDK),
         }
+
     }
 
 }

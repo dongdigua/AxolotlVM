@@ -36,7 +36,7 @@ impl Value {
             Value::Float(val) => val as i64,
             Value::Char(val) => val as i64,
             Value::Nil => 0_i64,
-            _ => panic!("[VALUE]: Cannot convert Value::Bool to Value::Int"),
+            _ => panic!("[VALUE]: Cannot convert to Value::Int"),
         }
     }
 
@@ -46,7 +46,7 @@ impl Value {
             Value::Int(val) => val as f64,
             Value::Char(val) => val as u8 as f64,
             Value::Nil => 0f64,
-            _ => panic!("[VALUE]: Cannot convert Value::Bool to Value::Float"),
+            _ => panic!("[VALUE]: Cannot convert to Value::Float"),
         }
     }
 
@@ -55,7 +55,7 @@ impl Value {
             Value::Char(val) => val,
             Value::Int(val) => val as u32,
             Value::Float(val) => val as u32,
-            _ => panic!("[VALUE]: Cannot convert Value::Bool or Value::Nil to Value::Char"),
+            _ => panic!("[VALUE]: Cannot convert to Value::Char"),
         }
     }
 
