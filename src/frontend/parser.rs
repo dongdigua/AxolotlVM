@@ -19,7 +19,7 @@ pub fn parse(input: &String) -> Result<Parsed, ParseError> {
     let re_parse =
         Regex::new(r#"[\s,]*([\[\]{}()']|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)"#).unwrap();
     let caps: Vec<Captures> = re_parse.captures_iter(input).collect();
-
+    //println!("{:?}", &caps);
     let mut brackets = (0, 0);
     for c in &caps {
         match &c[1] {

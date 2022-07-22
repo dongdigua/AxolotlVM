@@ -32,20 +32,25 @@ impl VM {
         }
     }
 
-    pub fn new(delay: u64, render: bool, debug: bool) -> Self {
+    pub fn new(delay: u64, render: bool) -> Self {
         // https://doc.rust-lang.org/std/vec/struct.Vec.html#capacity-and-reallocation
         VM {
             stack: Vec::with_capacity(256),
             pc: 0,
             constant_pool: Vec::with_capacity(16),
-            delay: delay,
+            debug: false,
+            delay,
             render,
-            debug,
         }
     }
 
-    pub fn reset(&mut self) {
-        *self = Self::default()
+    pub fn set_debug(mut self, debug: bool) -> Self {
+        self.debug = debug;
+        self
+    }
+
+    pub fn reset_pc(&mut self) {
+        self.pc = 0;
     }
 
     fn pop(&mut self) -> Value {

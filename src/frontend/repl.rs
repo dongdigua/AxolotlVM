@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 
 pub fn repl() {
     let mut env = GenEnv::new();
-    let mut vm = VM::new(100, true, false);
+    let mut vm = VM::new(100, true);
 
     let mut counter = 0;
     let mut history = ReplHistory::new();
@@ -21,12 +21,14 @@ pub fn repl() {
             Ok(parsed) => {
                 match env.generate_with_halt(&parsed) {
                     Ok(code) => {
+                        println!("{:?}\n{:?}", &code, &env);
                         vm.run(&code);
-                        println!("{:?}", vm.stack.last().unwrap())
+                        println!("{:?}", vm.stack.last().unwrap());
+                        vm.reset_pc();  // otherwise it just halts
+                        counter += 1;
                     }
                     Err(err) => println!("[CODEGEN]: {:?}", err)
                 }
-                counter += 1;
             }
             Err(err) => println!("[PARSER]: {:?}", err),
         }

@@ -21,7 +21,7 @@ fn prog(delay: u64, render: bool) {
         ByteCode::HALT
     ];
 
-    let mut machine = VM::new(delay, render, false);
+    let mut machine = VM::new(delay, render);
     machine.run(&program);
     println!("\n{:?}", machine);
 }
@@ -104,7 +104,7 @@ fn main() {
             let program = bincode::decode_from_std_read(&mut bin_file, config).unwrap();
 
             let now = Instant::now();
-            let mut machine = VM::new(delay, render, debug);
+            let mut machine = VM::new(delay, render).set_debug(debug);
             machine.run(&program);
 
             let elapsed = now.elapsed();

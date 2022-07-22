@@ -41,6 +41,7 @@ pub enum Token {
     Bool(bool),
     Int(i64),
     Float(f64),
+    Char(u32),
     Str(String),
     Sym(String),
 }
@@ -88,9 +89,13 @@ pub fn tokenlize(s: String) -> Token {
         ("false"   , Bool(false))
     ]);
 
-    let re_int   = Regex::new(r#"(\d+)"#)    .unwrap();
-    let re_float = Regex::new(r#"(\d+.\d+)"#).unwrap();
-    let re_str   = Regex::new(r#""(.*)""#)   .unwrap();
+    let re_int   = Regex::new(r#"^(\d+)$"#)    .unwrap();
+    let re_float = Regex::new(r#"^(\d+.\d+)$"#).unwrap();
+    let re_str   = Regex::new(r#"^"(.*)"$"#)   .unwrap();
+    let re_char  = Regex::new(r#"^\\(.)$"#)    .unwrap();
+    // char is something like \A
+    // simmilar with clojure and racket
+    // because ' is quote
 
     match token_map.get(s.as_str()) {
         Some(token) => token.clone(),
@@ -103,6 +108,11 @@ pub fn tokenlize(s: String) -> Token {
                 let cap = re_float.captures(&s).unwrap();
                 let the_float = cap[1].parse::<f64>().unwrap();
                 Float(the_float)
+            } else if re_char.is_match(&s) {
+                // copied from asm.rs
+                let cap = re_char.captures(&s).unwrap();
+                let the_char = cap[1].chars().collect::<Vec<_>>()[0];
+                Char(the_char as u32)
             } else if re_str.is_match(&s) {
                 let cap = re_str.captures(&s).unwrap();
                 Str(cap[1].to_string())
