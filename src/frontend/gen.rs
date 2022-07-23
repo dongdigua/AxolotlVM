@@ -1,4 +1,4 @@
-// generate bytecode from lisp expression
+/// generate bytecode from lisp expression
 use crate::frontend::parser::Parsed;
 use crate::frontend::token::Token;
 use crate::vm::bytecode::ByteCode;
@@ -6,18 +6,20 @@ use crate::vm::value::Value;
 use crate::vm::object::ObjType;
 use std::collections::HashMap;
 use std::rc::Rc;
+use regex::Regex;
 
 #[derive (Debug, Copy, Clone)]
 pub enum CodeGenError {
     WrongNumberOfArgument(u8, u8),
     ArgTypeError,
     SymbolNotFound,
+    NotValidLambda,
     IDK,
 }
 
 // normally last() should't return None, this message is for me when I forgot what's wrong
 const STACK_LAST_ERROR: &'static str = "[CODEGEN]: Env scope stack error";
-const SHOULDNOT_REACH:     &'static str = "[CODEGEN]: Reached unexpected feild";
+const SHOULDNOT_REACH:  &'static str = "[CODEGEN]: Reached unexpected feild";
 
 #[derive (Debug)]
 pub struct GenEnv {
@@ -49,6 +51,14 @@ impl GenEnv {
             Parsed::Token(token) => {
                 match token {
                     Token::Sym(s) => {
+                        if s.starts_with("@") {
+                            // for lambda
+                            let re_param_index = Regex::new(r"@(\d+)").unwrap();
+                            let cap = re_param_index.captures(&s).unwrap();
+                            let param_index = cap[1].parse::<usize>().unwrap();
+                            return Ok(vec![ByteCode::Arg(param_index)])
+                        }
+
                         let mut index = None;
                         for scope in self.sym.iter().rev() {
                             if let Some(i) = scope.get(s) {
@@ -120,8 +130,8 @@ impl GenEnv {
             // arithmetic operation
             Parsed::Token(Token::Add | Token::Sub | Token::Mul | Token:: Div | Token::Rem) => {
                 match (&expr[1], &expr[2]) {
-                    (Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_)),
-                     Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_))) => {
+                    (Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_) | Token::Sym(_)),
+                     Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_) | Token::Sym(_))) => {
                         let token = if let Parsed::Token(token) = &expr[0] { token } else { todo!("{}", SHOULDNOT_REACH) };
                         let operator = match token {
                             Token::Add => ByteCode::Add,
@@ -144,8 +154,8 @@ impl GenEnv {
             // logical operation
             Parsed::Token(Token::And | Token::Or | Token::Xor) => {
                 match (&expr[1], &expr[2]) {
-                    (Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_)),
-                     Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_))) => {
+                    (Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_) | Token::Sym(_)),
+                     Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_) | Token::Sym(_))) => {
                         let token = if let Parsed::Token(token) = &expr[0] { token } else { todo!("{}", SHOULDNOT_REACH) };
                         let operator = match token {
                             Token::And => ByteCode::And,
@@ -162,9 +172,59 @@ impl GenEnv {
                     _ => Err(CodeGenError::ArgTypeError)
                 }
             }
+
+            Parsed::Token(Token::Lambda) => {
+                let argv = if let Parsed::List(argv) = &expr[1] { argv } else { return Err(CodeGenError::NotValidLambda) };
+                let body = &expr[2];
+                {
+                    // checks if argv are all symbol
+                    let mut valid = true;
+                    for arg in argv {
+                        match arg {
+                            Parsed::Token(Token::Sym(_)) => (),
+                            _ => valid = false,
+                        }
+                    }
+                    if ! valid {
+                        return Err(CodeGenError::NotValidLambda)
+                    }
+                }
+                let hashmap_iter = argv.iter().enumerate().map(|(index, arg)| {
+                    let sym = if let Parsed::Token(Token::Sym(sym)) = arg { sym } else { todo!() };
+                    (sym.to_string(), format!("@{}", index))  // like elixir &1, but starts from 0
+                });
+                // that♂s good
+                // iterator is elegant like Enum.map/2 in elixir
+                // and use an acc vector will have a compile error
+                // because the compiler don't know the size of vector
+                let replaced = rec_replace_sym(body, &HashMap::from_iter(hashmap_iter));
+                Ok(vec![ByteCode::Push(
+                    Value::Ref(
+                        Rc::new(ObjType::Func(argv.len(), self.generate(&replaced)?))
+                ))])
+            }
             _ => Err(CodeGenError::IDK),
         }
 
     }
 
+}
+
+fn rec_replace_sym(expr: &Parsed, mapper: &HashMap<String, String>) -> Parsed {
+    match expr {
+        Parsed::List(list) => {
+            let mut acc = vec![];
+            for i in list {
+                acc.push(rec_replace_sym(i, mapper))
+            }
+            Parsed::List(acc)
+        }
+        Parsed::Token(Token::Sym(sym)) => {
+            match mapper.get(sym) {
+                Some(to) => Parsed::Token(Token::Sym(to.clone())),
+                None => expr.clone(),
+            }
+        },
+        _ => expr.clone(),
+    }
 }

@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 
 pub fn repl() {
     let mut env = GenEnv::new();
-    let mut vm = VM::new(100, true);
+    let mut vm = VM::new(50, true);
 
     let mut counter = 0;
     let mut history = ReplHistory::new();

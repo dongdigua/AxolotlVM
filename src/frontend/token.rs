@@ -79,7 +79,7 @@ pub fn tokenlize(s: String) -> Token {
         ("car"     , Car),
         ("cdr"     , Cdr),
 
-        ("lambda"  , Lambda),
+        ("fn"      , Lambda),
         ("λ"       , Lambda),
         ("require" , Require),
         ("provide" , Provide),

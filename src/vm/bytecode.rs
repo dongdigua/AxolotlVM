@@ -1,7 +1,7 @@
 use crate::vm::value::Value;
 use bincode::{Encode, Decode};
 
-#[derive (Debug, PartialEq, Encode, Decode)]
+#[derive (Clone, Debug, PartialEq, Encode, Decode)]
 pub enum ByteCode {
     // https://course.rs/practice/naming.html
     HALT,
@@ -13,6 +13,7 @@ pub enum ByteCode {
 
     Get(usize),
     Set(usize),
+    Arg(usize),  // for calling lambda function, like a relative get
 
     Jmp(usize),
     PopJmpIf(usize),
@@ -45,6 +46,6 @@ pub enum ByteCode {
     // for lisp
     CollectList(usize),
     CollectCharList(usize),
-    CallTopFn,
+    CallTopFn,  // the number of parameter is based on the argc of Func, Func should be on top of the stack
 }
 

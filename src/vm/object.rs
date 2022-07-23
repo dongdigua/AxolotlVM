@@ -1,5 +1,6 @@
 use bincode::{Encode, Decode};
 use crate::vm::value::Value;
+use crate::vm::bytecode::ByteCode;
 use crate::builtin::linkedlist::List;
 use std::fmt::{Display, Formatter};
 
@@ -9,7 +10,7 @@ use std::fmt::{Display, Formatter};
 #[derive(Clone, PartialEq, Encode, Decode, Debug)]
 pub enum ObjType {
     Cons(List<Value>),
-    Func,
+    Func(usize, Vec<ByteCode>),
     Str(String),
 }
 
@@ -17,7 +18,7 @@ impl Display for ObjType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             ObjType::Cons(l) => write!(f, "{:?}", l),
-            ObjType::Func => todo!(),
+            ObjType::Func(_argc, body) => write!(f, "{:?}", body),
             ObjType::Str(s) => write!(f, "{:?}", s),
         }
     }
