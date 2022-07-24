@@ -57,6 +57,7 @@ impl VM {
         self.stack.pop().expect("[RUNTIME]: STACK UNDERFLOW")
     }
 
+    #[inline (always)]
     pub fn run(&mut self, program: &Vec<ByteCode>) {
         loop {
             let byte = &program[self.pc];
@@ -223,6 +224,25 @@ impl VM {
                     }
                     self.stack.push(Value::Ref(Rc::new(ObjType::Cons(list))));
                 }
+
+                ByteCode::CallTopFn => {
+                    if let Value::Ref(rf) = self.pop() {
+                        match &*rf {
+                            ObjType::Func(argc, body) => {
+                                let current_pool_index = self.constant_pool.len() - 1;
+                                let function_bytecode = expand_function_bytecode(*argc, current_pool_index, &body);
+                                let pc = self.pc;
+                                println!("{:?}\n{:?}", &function_bytecode, &self);
+                                self.reset_pc();
+                                self.run(&function_bytecode);
+                                self.pc = pc;
+                            }
+                            _ => panic!("[RUNTIME]: Not a valid function")
+                        }
+                    } else {
+                        panic!("[RUNTIME]: Not a valid function")
+                    }
+                }
                 _ => todo!("wtf!"),
             }
             if self.render {
@@ -257,4 +277,28 @@ impl VM {
             term.clear_last_lines(1).unwrap();
         }
     }
+}
+
+
+// Calltopfn helper function
+// Very ELEGANT
+fn expand_function_bytecode(argc: usize, current_pool_index: usize, body: &Vec<ByteCode>) -> Vec<ByteCode> {
+    (1..=argc)
+    // don't need to .iter() 
+        .map(|i| {
+            vec![ByteCode::Copy(argc),
+                 ByteCode::Set(current_pool_index + i)]
+        })
+        .flatten()
+        .chain(
+            body
+                .iter()
+                .map(|byte| {
+                    match byte {
+                        ByteCode::Arg(n) => ByteCode::Get(current_pool_index + n + 1),
+                        _ => byte.clone(),
+                    }
+                })
+        )
+        .collect::<Vec<ByteCode>>()
 }

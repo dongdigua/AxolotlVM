@@ -84,12 +84,34 @@ impl GenEnv {
                 }
             },
             Parsed::List(list) => {
-                match list.len() - 1 {
-                    0 => todo!("call a funtcion"),
-                    1 => self.single_arg(&expr),
-                    2 => self.double_arg(&expr),
-                    3 => todo!(),
-                    _more => todo!(),
+                match &list[0] {
+                    Parsed::Token(Token::List) => {
+                        todo!()
+                    }
+                    Parsed::Token(Token::Quote) => {
+                        todo!()
+                    }
+                    Parsed::Token(Token::Sym(_sym)) => {
+                        let mut res = vec![];
+                        for i in &list[1..] {
+                            res.append(&mut self.generate(&i)?);
+                        }
+                        res.append(&mut self.generate(&list[0])?);
+                        res.push(ByteCode::CallTopFn);
+                        Ok(res)
+                    }
+                    Parsed::List(_func) => {
+                        todo!("call direct lambda")
+                    }
+                    _ => {
+                        match list.len() - 1 {
+                            0 => todo!(),
+                            1 => self.single_arg(&expr),
+                            2 => self.double_arg(&expr),
+                            3 => todo!(),
+                            _more => todo!(),
+                        }
+                    }
                 }
             }
         }

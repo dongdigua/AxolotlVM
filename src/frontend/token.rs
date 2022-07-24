@@ -32,6 +32,7 @@ pub enum Token {
     List,
     Car,
     Cdr,
+    Quote,
 
     Lambda,
     Require,
