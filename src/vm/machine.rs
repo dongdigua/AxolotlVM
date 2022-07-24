@@ -232,7 +232,7 @@ impl VM {
                                 let current_pool_index = self.constant_pool.len() - 1;
                                 let function_bytecode = expand_function_bytecode(*argc, current_pool_index, &body);
                                 let pc = self.pc;
-                                println!("{:?}\n{:?}", &function_bytecode, &self);
+                                //println!("{:?}\n{:?}", &function_bytecode, &self);
                                 self.reset_pc();
                                 self.run(&function_bytecode);
                                 self.pc = pc;
@@ -286,7 +286,7 @@ fn expand_function_bytecode(argc: usize, current_pool_index: usize, body: &Vec<B
     (1..=argc)
     // don't need to .iter() 
         .map(|i| {
-            vec![ByteCode::Copy(argc),
+            vec![ByteCode::Copy(argc - i),  // magic, the topfn disappears
                  ByteCode::Set(current_pool_index + i)]
         })
         .flatten()
@@ -299,6 +299,9 @@ fn expand_function_bytecode(argc: usize, current_pool_index: usize, body: &Vec<B
                         _ => byte.clone(),
                     }
                 })
+        )
+        .chain(
+            std::iter::once(ByteCode::HALT)
         )
         .collect::<Vec<ByteCode>>()
 }

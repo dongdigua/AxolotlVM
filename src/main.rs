@@ -12,7 +12,7 @@ use std::time::Instant;
 use clap::{Arg, App, SubCommand};
 use bincode;
 
-fn prog(delay: u64, render: bool) {
+fn prog(delay: u64, render: bool, debug: bool) {
     let program: Vec<ByteCode> = vec![
         ByteCode::Push(Value::Int(1)),
         ByteCode::Push(Value::Int(2)),
@@ -21,7 +21,7 @@ fn prog(delay: u64, render: bool) {
         ByteCode::HALT
     ];
 
-    let mut machine = VM::new(delay, render);
+    let mut machine = VM::new(delay, render).set_debug(debug);
     machine.run(&program);
     println!("\n{:?}", machine);
 }
@@ -32,18 +32,19 @@ fn main() {
         .version("0.2.0")
         .about("A stacked-based virtual machine")
         .author("By: 董地瓜@bilibili")
-        .arg(Arg::new("delay")
-             .required(false)
-             .short('t')
-             .value_name("DELAY")
-             .takes_value(true)
-             .help("The delay of each cycle"))
+
 
         .subcommand(App::new("run")
                     .about("Run VM bytecode.")
                     .arg(Arg::new("BIN")
                          .help("assembly file")
-                         .required(true))
+                         .required(false))
+                    .arg(Arg::new("delay")
+                         .required(false)
+                         .short('t')
+                         .value_name("DELAY")
+                         .takes_value(true)
+                         .help("The delay of each cycle"))
                     .arg(Arg::new("no-render")
                          .required(false)
                          .long("no-render")
@@ -73,10 +74,6 @@ fn main() {
 
         .get_matches();
 
-    let delay = matches.value_of("delay")
-        .unwrap_or("0")
-        .parse::<u64>()
-        .unwrap();
 
     let mut status = true;
     // stolen from GloomScript
@@ -90,6 +87,10 @@ fn main() {
         matches.subcommand_matches("run").map(|m| {
             status = false;
 
+            let delay = m.value_of("delay")
+                .unwrap_or("0")
+                .parse::<u64>()
+                .unwrap();
             let render = ! m.get_one::<bool>("no-render").unwrap();
             let debug = if render {
                 *m.get_one::<bool>("debug").unwrap()
@@ -97,19 +98,22 @@ fn main() {
                 false
             };
 
-            let file = m.value_of("BIN").unwrap();
-            println!("axolotl bin: {}", file);
+            if let Some(file) = m.value_of("BIN") {
+                println!("axolotl bin: {}", file);
 
-            let mut bin_file = File::open(file).unwrap();
-            let program = bincode::decode_from_std_read(&mut bin_file, config).unwrap();
+                let mut bin_file = File::open(file).unwrap();
+                let program = bincode::decode_from_std_read(&mut bin_file, config).unwrap();
 
-            let now = Instant::now();
-            let mut machine = VM::new(delay, render).set_debug(debug);
-            machine.run(&program);
+                let now = Instant::now();
+                let mut machine = VM::new(delay, render).set_debug(debug);
+                machine.run(&program);
 
-            let elapsed = now.elapsed();
-            println!("elapsed: {:?}", elapsed);
-            println!("{:?}", machine);
+                let elapsed = now.elapsed();
+                println!("elapsed: {:?}", elapsed);
+                println!("{:?}", machine);
+            } else {
+                prog(delay, render, debug)
+            }
         });
     }
 
@@ -149,7 +153,4 @@ fn main() {
         });
     }
 
-    if status {
-        prog(delay, true);
-    }
 }
