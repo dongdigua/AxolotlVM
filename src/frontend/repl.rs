@@ -5,6 +5,8 @@ use crate::vm::machine::VM;
 use std::collections::VecDeque;
 
 pub fn repl() {
+    println!("pid: {}", std::process::id());
+
     let mut env = GenEnv::new();
     let mut vm = VM::new(100, true);
 

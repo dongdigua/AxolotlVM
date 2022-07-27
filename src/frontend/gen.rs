@@ -152,8 +152,8 @@ impl GenEnv {
             // arithmetic operation
             Parsed::Token(Token::Add | Token::Sub | Token::Mul | Token:: Div | Token::Rem) => {
                 match (&expr[1], &expr[2]) {
-                    (Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_) | Token::Sym(_)),
-                     Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_) | Token::Sym(_))) => {
+                    (Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_) | Token::Sym(_)) | Parsed::List(_),
+                     Parsed::Token(Token::Int(_) | Token::Float(_) | Token::Char(_) | Token::Sym(_)) | Parsed::List(_)) => {
                         let token = if let Parsed::Token(token) = &expr[0] { token } else { todo!("{}", SHOULDNOT_REACH) };
                         let operator = match token {
                             Token::Add => ByteCode::Add,
@@ -176,8 +176,8 @@ impl GenEnv {
             // logical operation
             Parsed::Token(Token::And | Token::Or | Token::Xor) => {
                 match (&expr[1], &expr[2]) {
-                    (Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_) | Token::Sym(_)),
-                     Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_) | Token::Sym(_))) => {
+                    (Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_) | Token::Sym(_)) | Parsed::List(_),
+                     Parsed::Token(Token::Int(_) | Token::Bool(_) | Token::Char(_) | Token::Sym(_)) | Parsed::List(_)) => {
                         let token = if let Parsed::Token(token) = &expr[0] { token } else { todo!("{}", SHOULDNOT_REACH) };
                         let operator = match token {
                             Token::And => ByteCode::And,

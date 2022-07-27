@@ -284,7 +284,7 @@ impl VM {
 // Very ELEGANT
 fn expand_function_bytecode(argc: usize, current_pool_index: usize, body: &Vec<ByteCode>) -> Vec<ByteCode> {
     (1..=argc)
-    // don't need to .iter() 
+    // don't need to .iter()
         .map(|i| {
             vec![ByteCode::Copy(argc - i),  // magic, the topfn disappears
                  ByteCode::Set(current_pool_index + i)]
