@@ -65,21 +65,23 @@ pub fn parse(input: &String) -> Result<Parsed, ParseError> {
 #[cfg (test)]
 mod tests {
     use super::*;
-    use super::Parsed::*;
+    use super::Parsed::{Token, List};
+    use crate::frontend::token::Token::*;
+
 
     #[test]
     fn test_parse_str() {
         let input = "123".to_string();
-        assert_eq!(Str("123".to_string()), parse(&input).unwrap());
+        assert_eq!(Token(Int(123)), parse(&input).unwrap());
     }
 
     #[test]
     fn test_simple_ast() {
         let input = "(+ 1 (+ 2 3))".to_string();
         assert_eq!(List(
-            vec![Str("+".to_string()), Str("1".to_string()),
+            vec![Token(Add), Token(Int(1)),
                  List(
-                     vec![Str("+".to_string()), Str("2".to_string()), Str("3".to_string())]
+                     vec![Token(Add), Token(Int(2)), Token(Int(3))]
                  )
             ]
         ), parse(&input).unwrap());

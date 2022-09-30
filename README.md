@@ -7,9 +7,9 @@ and MC 1.17 is the last version with world hight 256
 ## usage
 ```shell
 axolotl asm <ASSEMBLY_FILE>
-axolotl -t <DELAY> run [--no-render] [--debug] <VM_BINARY>
+axolotl run -t <DELAY> [--no-render] [--debug] <VM_BINARY>
+axolotl --repl
 ```
-
 
 
 ## references
@@ -31,9 +31,10 @@ axolotl -t <DELAY> run [--no-render] [--debug] <VM_BINARY>
 I don't quite understand [on SO](https://stackoverflow.com/questions/25410028/how-to-read-a-struct-from-a-file-in-rust)<br>
 YouTube: [c serialization](https://youtu.be/QrKpqdBiFRI)<br>
 
-
+## videos
+[1](https://www.bilibili.com/video/BV1HS4y1H7S6)<br>
+[2](https://www.bilibili.com/video/BV1xe4y1Q7Ay)<br>
 
 ## TODO
 - syscall? native function(like tsoding day 4)
-- λ
 
